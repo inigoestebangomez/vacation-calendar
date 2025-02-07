@@ -1,0 +1,110 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "vacation.caledar.vacationcalendar",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.16.3",
+      "toolsId": "b44405fe-3646-45a7-84c6-419c81df0ae1"
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "Vacation_Calendar-Display": {
+          "semanticObject": "Vacation_Calendar",
+          "action": "Display",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.132.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "vacation.caledar.vacationcalendar.i18n.i18n"
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition":"slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "vacation.caledar.vacationcalendar.view",
+        "async": true,
+        "viewPath": "vacation.caledar.vacationcalendar.view"
+      },
+      "routes": [
+        {
+          "name": "RouteCalendar",
+          "pattern": ":?query:",
+          "target": [
+            "TargetCalendar"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetCalendar": {
+          "id": "Calendar",
+          "name": "Calendar"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "vacation.caledar.vacationcalendar.view.App",
+      "type": "XML",
+      "id": "App"
+    }
+  }
+}

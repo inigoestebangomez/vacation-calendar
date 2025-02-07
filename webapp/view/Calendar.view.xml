@@ -1,0 +1,7 @@
+<mvc:View controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+        <Button id="_IDGenButton" text="Hello"/>
+    </Page>
+</mvc:View>
