@@ -1,7 +1,31 @@
-<mvc:View controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
-    xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
+<mvc:View xmlns:unified="sap.ui.unified" 
+    controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
+    xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.f"
+	xmlns:layout="sap.ui.layout"
+	height="100%">
     <Page id="page" title="{i18n>title}">
-        <Button id="_IDGenButton" text="Hello"/>
+        <PlanningCalendar 
+            id="_IDGenPlanningCalendar"
+            viewKey="Week"
+            appointmentsVisualization="Filled"
+            showWeekNumbers="true"
+            showRowHeaders="false" >
+            <rows>
+                <PlanningCalendarRow 
+                    id="_IDGenPlanningCalendarRow"
+                    icon="" 
+                    title=""
+                    text=""
+                     >
+                     <appointments>
+                        <unified:CalendarAppointment 
+                            id="_IDGenCalendarAppointment">
+                        </unified:CalendarAppointment>
+                     </appointments>
+                </PlanningCalendarRow>
+            </rows>
+        </PlanningCalendar>
     </Page>
 </mvc:View>

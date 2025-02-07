@@ -88,14 +88,14 @@
       "routes": [
         {
           "name": "RouteCalendar",
-          "pattern": ":?query:",
+          "pattern": "",
           "target": [
-            "TargetCalendar"
+            "Calendar"
           ]
         }
       ],
       "targets": {
-        "TargetCalendar": {
+        "Calendar": {
           "id": "Calendar",
           "name": "Calendar"
         }
