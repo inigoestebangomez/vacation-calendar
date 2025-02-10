@@ -1,0 +1,161 @@
+{
+    "rows": [
+      {
+        "icon": "https://via.placeholder.com/150?text=Juan+P%C3%A9rez",
+        "title": "Juan Pérez",
+        "nombre": "Juan",
+        "apellidos": "Pérez",
+        "cargo": "Gerente",
+        "appointments": [
+          {
+            "startDate": "2025-07-01T00:00:00",
+            "endDate": "2025-07-05T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          },
+          {
+            "startDate": "2025-12-20T00:00:00",
+            "endDate": "2025-12-25T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Mar%C3%ADa+Garc%C3%ADa",
+        "title": "María García",
+        "nombre": "María",
+        "apellidos": "García",
+        "cargo": "Desarrolladora",
+        "appointments": [
+          {
+            "startDate": "2025-08-10T00:00:00",
+            "endDate": "2025-08-15T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Carlos+Rodr%C3%ADguez",
+        "title": "Carlos Rodríguez",
+        "nombre": "Carlos",
+        "apellidos": "Rodríguez",
+        "cargo": "Analista",
+        "appointments": [
+          {
+            "startDate": "2025-09-05T00:00:00",
+            "endDate": "2025-09-10T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Ana+L%C3%B3pez",
+        "title": "Ana López",
+        "nombre": "Ana",
+        "apellidos": "López",
+        "cargo": "Recursos Humanos",
+        "appointments": [
+          {
+            "startDate": "2025-10-01T00:00:00",
+            "endDate": "2025-10-05T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Luis+Fern%C3%A1ndez",
+        "title": "Luis Fernández",
+        "nombre": "Luis",
+        "apellidos": "Fernández",
+        "cargo": "Soporte Técnico",
+        "appointments": [
+          {
+            "startDate": "2025-07-15T00:00:00",
+            "endDate": "2025-07-20T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Carmen+Mart%C3%ADnez",
+        "title": "Carmen Martínez",
+        "nombre": "Carmen",
+        "apellidos": "Martínez",
+        "cargo": "Marketing",
+        "appointments": [
+          {
+            "startDate": "2025-08-01T00:00:00",
+            "endDate": "2025-08-05T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Pedro+S%C3%A1nchez",
+        "title": "Pedro Sánchez",
+        "nombre": "Pedro",
+        "apellidos": "Sánchez",
+        "cargo": "Finanzas",
+        "appointments": [
+          {
+            "startDate": "2025-09-15T00:00:00",
+            "endDate": "2025-09-20T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Laura+G%C3%B3mez",
+        "title": "Laura Gómez",
+        "nombre": "Laura",
+        "apellidos": "Gómez",
+        "cargo": "Diseñadora",
+        "appointments": [
+          {
+            "startDate": "2025-10-10T00:00:00",
+            "endDate": "2025-10-15T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=David+Ruiz",
+        "title": "David Ruiz",
+        "nombre": "David",
+        "apellidos": "Ruiz",
+        "cargo": "IT Manager",
+        "appointments": [
+          {
+            "startDate": "2025-11-01T00:00:00",
+            "endDate": "2025-11-05T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      },
+      {
+        "icon": "https://via.placeholder.com/150?text=Elena+Morales",
+        "title": "Elena Morales",
+        "nombre": "Elena",
+        "apellidos": "Morales",
+        "cargo": "Consultora",
+        "appointments": [
+          {
+            "startDate": "2025-12-01T00:00:00",
+            "endDate": "2025-12-05T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          }
+        ]
+      }
+    ]
+  }
+  

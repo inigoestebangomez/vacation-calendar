@@ -1,4 +1,5 @@
-<mvc:View xmlns:unified="sap.ui.unified" 
+<mvc:View 
+    xmlns:unified="sap.ui.unified" 
     controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
     xmlns="sap.m"
 	xmlns:mvc="sap.ui.core.mvc"
@@ -11,19 +12,24 @@
             viewKey="Week"
             appointmentsVisualization="Filled"
             showWeekNumbers="true"
-            showRowHeaders="false" >
+            showRowHeaders="false"
+            rows="{vacationModel>/rows}" >
             <rows>
                 <PlanningCalendarRow 
-                    id="_IDGenPlanningCalendarRow"
-                    icon="" 
-                    title=""
-                    text=""
-                     >
-                     <appointments>
+                        id="_IDGenPlanningCalendarRow" 
+                        icon="{icon}" 
+                        title="{title}"
+                        text="{cargo}"
+                        appointments="{appointments}">
+                    <appointments>
                         <unified:CalendarAppointment 
-                            id="_IDGenCalendarAppointment">
+                            id="_IDGenCalendarAppointment" 
+                            startDate="{ path: 'startDate', formatter: '.formatDate' }"
+                endDate="{ path: 'endDate', formatter: '.formatDate' }"
+                            title="{title}"
+                            type="{type}">
                         </unified:CalendarAppointment>
-                     </appointments>
+                    </appointments>
                 </PlanningCalendarRow>
             </rows>
         </PlanningCalendar>

@@ -71,6 +71,11 @@
         {
           "uri": "css/style.css"
         }
+      ],
+      "json": [
+        {
+          "uri": "mockdata/vacationModel.json"
+        }
       ]
     },
     "routing": {
