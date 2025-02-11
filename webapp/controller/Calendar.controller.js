@@ -29,7 +29,7 @@ sap.ui.define([
            this.getView().attachAfterRendering(function(){
             var oCalendar = this.byId("_IDGenPlanningCalendar");
             if (oCalendar) {
-                oCalendar.setStartDate(new Date("2025-07-01T00:00:00"));
+                oCalendar.setStartDate(new Date("today"));
             }
         }.bind(this));
 
@@ -147,7 +147,7 @@ sap.ui.define([
             let oStartDate = new Date(sStartDate);
             let oEndDate = new Date(sEndDate);
         
-            let options = { day: "2-digit", month: "short", year: "numeric" };
+            let options = { day: "2-digit", month: "short" };
         
             return `${oStartDate.toLocaleDateString("en-GB", options)} to ${oEndDate.toLocaleDateString("en-GB", options)}`;
         }
