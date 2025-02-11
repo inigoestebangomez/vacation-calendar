@@ -8,6 +8,7 @@ sap.ui.define([
 
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
         onInit: function () {
+            //para cuando funcione el servicio
             // this.appConfig = {
             //     clientId: "CLIENT_ID", // Client ID de Microsoft Entra ID
             //     clientSecret: "CLIENT_SECRET", // Client Secret de Microsoft.
@@ -15,7 +16,7 @@ sap.ui.define([
             //     scopes: ["Calendars.Read.All", "User.Read.All"]
             // };
   
-           var oModel = new JSONModel();
+           let oModel = new JSONModel();
            this.getView().setModel(oModel, "vacationModel");
            //this.loadVacationData(); //para cuando funcione el servicio
 
@@ -138,6 +139,19 @@ sap.ui.define([
                 return new Date(sDate);
             }
             return null;
+        },
+
+        formatDateRange: function(sStartDate, sEndDate) {
+            if (!sStartDate || !sEndDate) return "";
+        
+            let oStartDate = new Date(sStartDate);
+            let oEndDate = new Date(sEndDate);
+        
+            let options = { day: "2-digit", month: "short", year: "numeric" };
+        
+            return `${oStartDate.toLocaleDateString("en-GB", options)} to ${oEndDate.toLocaleDateString("en-GB", options)}`;
         }
+        
+        
     });
 });

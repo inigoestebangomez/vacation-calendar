@@ -13,7 +13,7 @@
             appointmentsVisualization="Filled"
             showWeekNumbers="true"
             showRowHeaders="true"
-            rows="{vacationModel>/rows}">
+            rows="{vacationModel>/rows}" >
             <rows>
                 <PlanningCalendarRow 
                         id="_IDGenPlanningCalendarRow"
@@ -27,6 +27,13 @@
                             startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
                             endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
                             title="{vacationModel>title}"
+                            text="{
+                            parts: [
+                                { path: 'vacationModel>startDate' },
+                                { path: 'vacationModel>endDate' }
+                                    ],
+                                    formatter: '.formatDateRange'
+                                }"
                             type="{vacationModel>type}">
                         </unified:CalendarAppointment>
                     </appointments>
