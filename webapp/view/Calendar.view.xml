@@ -13,7 +13,7 @@
             appointmentsVisualization="Filled"
             showWeekNumbers="true"
             showRowHeaders="true"
-            rows="{vacationModel>/rows}" >
+            rows="{vacationModel>/rows}">
             <rows>
                 <PlanningCalendarRow 
                         id="_IDGenPlanningCalendarRow"

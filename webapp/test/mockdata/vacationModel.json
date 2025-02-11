@@ -9,7 +9,7 @@
         "appointments": [
           {
             "startDate": "2025-07-01T00:00:00",
-            "endDate": "2025-07-05T23:59:59",
+            "endDate": "2025-07-04T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           },
@@ -29,7 +29,7 @@
         "cargo": "Desarrolladora",
         "appointments": [
           {
-            "startDate": "2025-08-10T00:00:00",
+            "startDate": "2025-08-11T00:00:00",
             "endDate": "2025-08-15T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
@@ -44,8 +44,8 @@
         "cargo": "Analista",
         "appointments": [
           {
-            "startDate": "2025-09-05T00:00:00",
-            "endDate": "2025-09-10T23:59:59",
+            "startDate": "2025-09-08T00:00:00",
+            "endDate": "2025-09-12T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
@@ -59,8 +59,8 @@
         "cargo": "Recursos Humanos",
         "appointments": [
           {
-            "startDate": "2025-10-01T00:00:00",
-            "endDate": "2025-10-05T23:59:59",
+            "startDate": "2025-10-06T00:00:00",
+            "endDate": "2025-10-10T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
@@ -74,8 +74,8 @@
         "cargo": "Soporte Técnico",
         "appointments": [
           {
-            "startDate": "2025-07-15T00:00:00",
-            "endDate": "2025-07-20T23:59:59",
+            "startDate": "2025-07-14T00:00:00",
+            "endDate": "2025-07-18T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
@@ -90,7 +90,13 @@
         "appointments": [
           {
             "startDate": "2025-08-01T00:00:00",
-            "endDate": "2025-08-05T23:59:59",
+            "endDate": "2025-08-01T23:59:59",
+            "title": "Vacaciones",
+            "type": "Type05"
+          },
+          {
+            "startDate": "2025-08-04T00:00:00",
+            "endDate": "2025-08-08T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
@@ -104,8 +110,8 @@
         "cargo": "Finanzas",
         "appointments": [
           {
-            "startDate": "2025-09-15T00:00:00",
-            "endDate": "2025-09-20T23:59:59",
+            "startDate": "2025-09-01T00:00:00",
+            "endDate": "2025-09-26T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
@@ -119,8 +125,8 @@
         "cargo": "Diseñadora",
         "appointments": [
           {
-            "startDate": "2025-10-10T00:00:00",
-            "endDate": "2025-10-15T23:59:59",
+            "startDate": "2025-10-06T00:00:00",
+            "endDate": "2025-10-17T23:59:59",
             "title": "Vacaciones",
             "type": "Type05"
           }
