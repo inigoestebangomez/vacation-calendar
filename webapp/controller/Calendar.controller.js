@@ -8,17 +8,30 @@ sap.ui.define([
 
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
         onInit: function () {
-            this.appConfig = {
-                clientId: "CLIENT_ID", // Client ID de Microsoft Entra ID
-                clientSecret: "CLIENT_SECRET", // Client Secret de Microsoft.
-                tenantId: "https://login.microsoftonline.com/_TENANT_ID", // Tenant ID
-                scopes: ["Calendars.Read.All", "User.Read.All"]
-            };
-
+            // this.appConfig = {
+            //     clientId: "CLIENT_ID", // Client ID de Microsoft Entra ID
+            //     clientSecret: "CLIENT_SECRET", // Client Secret de Microsoft.
+            //     tenantId: "https://login.microsoftonline.com/_TENANT_ID", // Tenant ID
+            //     scopes: ["Calendars.Read.All", "User.Read.All"]
+            // };
+  
            var oModel = new JSONModel();
            this.getView().setModel(oModel, "vacationModel");
            //this.loadVacationData(); //para cuando funcione el servicio
+
+           oModel.attachRequestCompleted(function() {
+            console.log("Modelo cargado:", oModel.getData());
+        });
+
            oModel.loadData("mockdata/vacationModel.json")
+
+           this.getView().attachAfterRendering(function(){
+            var oCalendar = this.byId("_IDGenPlanningCalendar");
+            if (oCalendar) {
+                oCalendar.setStartDate(new Date("2025-07-01T00:00:00"));
+            }
+        }.bind(this));
+
         },
 
         getAppToken: async function() {

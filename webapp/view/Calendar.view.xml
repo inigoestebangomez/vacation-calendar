@@ -9,25 +9,25 @@
     <Page id="page" title="{i18n>title}">
         <PlanningCalendar 
             id="_IDGenPlanningCalendar"
-            viewKey="Week"
+            viewKey="Month"
             appointmentsVisualization="Filled"
             showWeekNumbers="true"
-            showRowHeaders="false"
+            showRowHeaders="true"
             rows="{vacationModel>/rows}" >
             <rows>
                 <PlanningCalendarRow 
-                        id="_IDGenPlanningCalendarRow" 
-                        icon="{icon}" 
-                        title="{title}"
-                        text="{cargo}"
-                        appointments="{appointments}">
+                        id="_IDGenPlanningCalendarRow"
+                        icon="{vacationModel>icon}" 
+                        title="{vacationModel>title}"
+                        text="{vacationModel>cargo}"
+                        appointments="{vacationModel>appointments}">       
                     <appointments>
                         <unified:CalendarAppointment 
                             id="_IDGenCalendarAppointment" 
-                            startDate="{ path: 'startDate', formatter: '.formatDate' }"
-                endDate="{ path: 'endDate', formatter: '.formatDate' }"
-                            title="{title}"
-                            type="{type}">
+                            startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
+                            endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
+                            title="{vacationModel>title}"
+                            type="{vacationModel>type}">
                         </unified:CalendarAppointment>
                     </appointments>
                 </PlanningCalendarRow>

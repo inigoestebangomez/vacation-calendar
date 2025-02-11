@@ -64,17 +64,16 @@
         "settings": {
           "bundleName": "vacation.caledar.vacationcalendar.i18n.i18n"
         }
+      },
+      "vacationModel":{
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "test/mockdata/vacationModel.json"
       }
     },
     "resources": {
       "css": [
         {
           "uri": "css/style.css"
-        }
-      ],
-      "json": [
-        {
-          "uri": "mockdata/vacationModel.json"
         }
       ]
     },
