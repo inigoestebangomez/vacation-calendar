@@ -1,44 +1,116 @@
 <mvc:View 
-    xmlns:unified="sap.ui.unified" 
+    xmlns:unified="sap.ui.unified"
+    xmlns:dnd="sap.ui.core.dnd" 
     controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
     xmlns="sap.m"
-	xmlns:mvc="sap.ui.core.mvc"
-	xmlns:f="sap.f"
-	xmlns:layout="sap.ui.layout"
-	height="100%">
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:f="sap.f"
+    xmlns:layout="sap.ui.layout"
+    height="100%">
     <Page id="page" title="{i18n>title}">
-        <PlanningCalendar 
-            id="_IDGenPlanningCalendar"
-            viewKey="Month"
-            appointmentsVisualization="Filled"
-            showWeekNumbers="true"
-            showRowHeaders="true"
-            rows="{vacationModel>/rows}" >
+
+    <!-- <subHeader>
+            <Toolbar id="_IDGenToolbar">
+                <SearchField
+                    id="searchField"
+                    width="20%"
+                    placeholder="Buscar por nombre, apellido o cargo..."
+                    search=".onSearch"
+                    liveChange=".onSearch"/>
+                <ToolbarSpacer id="_IDGenToolbarSpacer"/>
+                <DateRangeSelection
+                    id="dateFilter"
+                    displayFormat="dd/MM/yyyy"
+                    change=".onDateRangeChange"
+                    placeholder="Filtrar por fecha de vacaciones"/>
+                <ComboBox
+                    id="cargoFilter"
+                    placeholder="Filtrar por cargo"
+                    items="{
+                        path: 'vacationModel>/cargos',
+                        sorter: { path: 'cargo' }
+                    }"
+                    selectionChange=".onCargoFilterChange">
+                    <items>
+                        <core:Item id="_IDGenItem" key="{vacationModel>cargo}" text="{vacationModel>cargo}" />
+                    </items>
+                </ComboBox>
+                <Button id="_IDGenButton1" 
+                    icon="sap-icon://clear-filter"
+                    press=".onClearFilters"
+                    tooltip="Limpiar filtros"/>
+            </Toolbar>
+        </subHeader> -->
+
+    <content>
+      <layout:Splitter 
+        id="mySplitter" 
+        width="100%" 
+        height="100%"
+        resize="true"
+        orientation="Vertical">
+          <Panel 
+            id="sidePanel" 
+            headerText="Reorder Employees" 
+            expandable="true"
+            expanded="false"
+            expand=".onSidePanelToggle"
+            expandAnimation="true" 
+            visible="true">
+            <layoutData>
+              <layout:SplitterLayoutData id="_IDGenSplitterLayoutData" size="7%" />
+            </layoutData>
+            <List id="employeeList" items="{vacationModel>/rows}">
+              <items>
+                <StandardListItem 
+                  id="_IDGenStandardListItem1" 
+                  title="{vacationModel>title}" 
+                  description="{vacationModel>cargo}" 
+                  type="Active"/>
+              </items>
+              <dragDropConfig>
+                <dnd:DragInfo 
+                  id="_IDGenDragInfo" 
+                  sourceAggregation="items" 
+                  groupName="employeeGroup" />
+                <dnd:DropInfo 
+                  id="_IDGenDropInfo" 
+                  targetAggregation="items" 
+                  groupName="employeeGroup" 
+                  dropPosition="On" 
+                  drop=".onEmployeeDrop" />
+              </dragDropConfig>
+            </List>
+          </Panel>
+          <PlanningCalendar 
+              id="_IDGenPlanningCalendar"
+              viewKey="Month"
+              appointmentsVisualization="Filled"
+              showWeekNumbers="true"
+              showRowHeaders="true"
+              rows="{vacationModel>/rows}"
+              height="auto">
             <rows>
-                <PlanningCalendarRow 
-                        id="_IDGenPlanningCalendarRow"
-                        icon="{vacationModel>icon}" 
-                        title="{vacationModel>title}"
-                        text="{vacationModel>cargo}"
-                        appointments="{vacationModel>appointments}">       
-                    <appointments>
-                        <unified:CalendarAppointment 
-                            id="_IDGenCalendarAppointment" 
-                            startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
-                            endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
-                            title="{vacationModel>title}"
-                            text="{
-                            parts: [
-                                { path: 'vacationModel>startDate' },
-                                { path: 'vacationModel>endDate' }
-                                    ],
-                                    formatter: '.formatDateRange'
-                                }"
-                            type="{vacationModel>type}">
-                        </unified:CalendarAppointment>
-                    </appointments>
-                </PlanningCalendarRow>
+              <PlanningCalendarRow 
+                  id="_IDGenPlanningCalendarRow"
+                  icon="{vacationModel>icon}" 
+                  title="{vacationModel>title}"
+                  text="{vacationModel>cargo}"
+                  appointments="{vacationModel>appointments}">       
+                <appointments>
+                  <unified:CalendarAppointment 
+                      id="_IDGenCalendarAppointment" 
+                      startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
+                      endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
+                      title="{vacationModel>title}"
+                      text="{parts: [{ path: 'vacationModel>startDate' },{ path: 'vacationModel>endDate' }],formatter: '.formatDateRange'}"
+                      type="{vacationModel>type}" />
+                </appointments>
+              </PlanningCalendarRow>
             </rows>
-        </PlanningCalendar>
+          </PlanningCalendar>
+       
+      </layout:Splitter>
+    </content>
     </Page>
 </mvc:View>

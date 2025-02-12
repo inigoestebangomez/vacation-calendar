@@ -2,8 +2,10 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/commons/MessageToast",
-], function (Controller, JSONModel,MessageToast) {
+    "sap/m/MessageToast",
+    "sap/ui/core/dnd/DragInfo",
+    "sap/ui/core/dnd/DropInfo"
+], function (Controller, JSONModel, MessageToast, DragInfo, DropInfo) {
     "use strict";
 
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
@@ -20,19 +22,59 @@ sap.ui.define([
            this.getView().setModel(oModel, "vacationModel");
            //this.loadVacationData(); //para cuando funcione el servicio
 
-           oModel.attachRequestCompleted(function() {
-            console.log("Modelo cargado:", oModel.getData());
-        });
+            //    oModel.attachRequestCompleted(function() {
+            //     console.log("Modelo cargado:", oModel.getData());
+            //     });
 
            oModel.loadData("mockdata/vacationModel.json")
 
            this.getView().attachAfterRendering(function(){
-            var oCalendar = this.byId("_IDGenPlanningCalendar");
+                let oCalendar = this.byId("_IDGenPlanningCalendar");
             if (oCalendar) {
-                oCalendar.setStartDate(new Date("today"));
+                oCalendar.setStartDate(new Date());
             }
         }.bind(this));
 
+        },
+
+        onSidePanelToggle: function (oEvent) {
+            let oPanel = oEvent.getSource();
+            let oSplitterLayoutData = this.byId("_IDGenSplitterLayoutData");
+            let oSplitter = this.byId("mySplitter");
+            if (oPanel.getExpanded()) {
+                oSplitterLayoutData.setSize("30%");
+            } else {
+                oSplitterLayoutData.setSize("7%");
+            }
+            oSplitter.rerender();
+        },
+
+        onEmployeeDrop: function (oEvent) {
+            try {
+                let oDraggedControl = oEvent.getParameter("draggedControl");
+                let oDroppedControl = oEvent.getParameter("droppedControl");
+                let sDropPosition = oEvent.getParameter("dropPosition");
+        
+                let oModel = this.getView().getModel("vacationModel");
+                let aEmployees = oModel.getProperty("/rows");
+        
+                let iDraggedIndex = oDraggedControl.getBindingContext("vacationModel").getPath().split("/")[2];
+                let iDroppedIndex = oDroppedControl.getBindingContext("vacationModel").getPath().split("/")[2];
+        
+                if (sDropPosition === "After") {
+                    iDroppedIndex++;
+                }
+        
+                // Reordenar el array
+                let oDraggedEmployee = aEmployees.splice(iDraggedIndex, 1)[0];
+                aEmployees.splice(iDroppedIndex, 0, oDraggedEmployee);
+        
+                oModel.setProperty("/rows", aEmployees);
+                MessageToast.show("Employee order updated");
+            } catch (error) {
+                console.error("Error in onEmployeeDrop:", error);
+                MessageToast.show("Error reordering employee: " + error.message);
+            }
         },
 
         getAppToken: async function() {
