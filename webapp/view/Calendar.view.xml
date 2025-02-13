@@ -8,40 +8,13 @@
     xmlns:layout="sap.ui.layout"
     height="100%">
     <Page id="page" title="{i18n>title}">
-
-    <!-- <subHeader>
-            <Toolbar id="_IDGenToolbar">
-                <SearchField
-                    id="searchField"
-                    width="20%"
-                    placeholder="Buscar por nombre, apellido o cargo..."
-                    search=".onSearch"
-                    liveChange=".onSearch"/>
-                <ToolbarSpacer id="_IDGenToolbarSpacer"/>
-                <DateRangeSelection
-                    id="dateFilter"
-                    displayFormat="dd/MM/yyyy"
-                    change=".onDateRangeChange"
-                    placeholder="Filtrar por fecha de vacaciones"/>
-                <ComboBox
-                    id="cargoFilter"
-                    placeholder="Filtrar por cargo"
-                    items="{
-                        path: 'vacationModel>/cargos',
-                        sorter: { path: 'cargo' }
-                    }"
-                    selectionChange=".onCargoFilterChange">
-                    <items>
-                        <core:Item id="_IDGenItem" key="{vacationModel>cargo}" text="{vacationModel>cargo}" />
-                    </items>
-                </ComboBox>
-                <Button id="_IDGenButton1" 
-                    icon="sap-icon://clear-filter"
-                    press=".onClearFilters"
-                    tooltip="Limpiar filtros"/>
-            </Toolbar>
-        </subHeader> -->
-
+    <headerContent>
+      <SearchField 
+          id="globalSearch" 
+          placeholder="Search by name, last name or position" 
+          liveChange=".onGlobalSearch" 
+          width="35vw"/>
+    </headerContent>
     <content>
       <layout:Splitter 
         id="mySplitter" 
@@ -58,7 +31,7 @@
             expandAnimation="true" 
             visible="true">
             <layoutData>
-              <layout:SplitterLayoutData id="_IDGenSplitterLayoutData" size="7%" />
+              <layout:SplitterLayoutData id="_IDGenSplitterLayoutData" size="6%" />
             </layoutData>
             <List id="employeeList" items="{vacationModel>/rows}">
               <items>

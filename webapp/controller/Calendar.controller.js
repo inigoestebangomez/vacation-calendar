@@ -19,6 +19,7 @@ sap.ui.define([
             // };
   
            let oModel = new JSONModel();
+
            this.getView().setModel(oModel, "vacationModel");
            //this.loadVacationData(); //para cuando funcione el servicio
 
@@ -37,6 +38,43 @@ sap.ui.define([
 
         },
 
+        onGlobalSearch: function (oEvent) {
+            let sQuery = oEvent.getParameter("newValue");
+            // Asegurarse de que sQuery no sea undefined o null antes de toLowerCase()
+            sQuery = sQuery ? sQuery.toLowerCase() : "";
+    
+            let oModel = this.getView().getModel("vacationModel");
+            let oData = oModel.getData();
+            // Copia original guardada al cargar el modelo
+            let aOriginal = oData.originalRows || oData.rows;
+
+            // Guardar los datos originales si aún no se han guardado
+            if (!oData.originalRows) {
+                oData.originalRows = JSON.parse(JSON.stringify(oData.rows));
+            }
+
+            // Verificar si la búsqueda está vacía, undefined o null
+            if (!sQuery || sQuery.trim() === "") {
+                // Restaurar los datos originales
+                oData.rows = JSON.parse(JSON.stringify(oData.originalRows));
+                oModel.setData(oData);
+                return;
+            }
+
+            // Filtrar el array
+            let aFiltered = oData.originalRows.filter(function (oEmployee) {
+                let sNombre = oEmployee.nombre.toLowerCase();
+                let sApellidos = oEmployee.apellidos.toLowerCase();
+                let sCargo = oEmployee.cargo.toLowerCase();
+                return sNombre.includes(sQuery) || 
+                    sApellidos.includes(sQuery) || 
+                    sCargo.includes(sQuery);
+        });
+
+        oData.rows = aFiltered;
+        oModel.setData(oData);
+        },
+
         onSidePanelToggle: function (oEvent) {
             let oPanel = oEvent.getSource();
             let oSplitterLayoutData = this.byId("_IDGenSplitterLayoutData");
@@ -44,7 +82,7 @@ sap.ui.define([
             if (oPanel.getExpanded()) {
                 oSplitterLayoutData.setSize("30%");
             } else {
-                oSplitterLayoutData.setSize("7%");
+                oSplitterLayoutData.setSize("8%");
             }
             oSplitter.rerender();
         },
