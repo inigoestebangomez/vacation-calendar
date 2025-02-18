@@ -1,0 +1,62 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout">
+    <HBox
+        id="detailPanel"
+        visible="false"
+        class="sapUiSmallMargin"
+        width="100%"
+        wrap="Wrap">
+        <VBox
+            id="_IDGenVBox"
+            class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+            <Title
+                id="_IDGenTitle"
+                text="Vacation Info:"
+                level="H4"/>
+            <HBox
+                id="_IDGenHBox"
+                class="sapUiTinyMarginTop">
+                <Label
+                    id="_IDGenLabel"
+                    text="Days Enjoyed: "
+                    class="sapUiTinyMarginEnd"/>
+                <ObjectStatus
+                    id="_IDGenObjectStatus"
+                    text="{statsModel>/diasConsumir} days"
+                    state="Information"/>
+            </HBox>
+            <HBox
+                id="_IDGenHBox1"
+                class="sapUiTinyMarginTop">
+                <Label
+                    id="_IDGenLabel1"
+                    text="Remaining days: "
+                    class="sapUiTinyMarginEnd"/>
+                <ObjectStatus
+                    id="_IDGenObjectStatus1"
+                    text="{statsModel>/diasRestantes} days"
+                    state="{= ${statsModel>/diasRestantes} > 10 ? 'Success' : ${statsModel>/diasRestantes} > 5 ? 'Warning' : 'Error' }"/>
+            </HBox>
+            <HBox
+                id="_IDGenHBox2"
+                class="sapUiTinyMarginTop">
+                <Label
+                    id="_IDGenLabel2"
+                    text="Max Days: "
+                    class="sapUiTinyMarginEnd"/>
+                <Text
+                    id="_IDGenText1"
+                    text="{statsModel>/diasMaximos} days"/>
+            </HBox>
+        </VBox>
+        <Button
+            id="_IDGenButton"
+            icon="sap-icon://decline"
+            press=".onCloseDetailPanel"
+            class="sapUiTinyMarginTop"
+            type="Transparent"
+            tooltip="Cerrar Detalle"/>
+    </HBox>
+</core:FragmentDefinition>

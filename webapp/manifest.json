@@ -98,12 +98,25 @@
           "target": [
             "Calendar"
           ]
+        },
+        {
+          "pattern": "employee/{employeeId}",
+          "name": "employeeDetail",
+          "target": [
+            "employeeDetail"
+          ]
         }
       ],
       "targets": {
         "Calendar": {
           "id": "Calendar",
-          "name": "Calendar"
+          "name": "Calendar",
+          "viewLevel": 1
+        },
+        "employeeDetail": {
+            "id": "EmployeeDetail",
+            "name": "EmployeeDetail",
+            "viewLevel": 2
         }
       }
     },

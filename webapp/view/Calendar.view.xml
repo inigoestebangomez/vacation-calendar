@@ -1,6 +1,7 @@
 <mvc:View 
     xmlns:unified="sap.ui.unified"
-    xmlns:dnd="sap.ui.core.dnd" 
+    xmlns:dnd="sap.ui.core.dnd"
+    xmlns:core="sap.ui.core" 
     controllerName="vacation.caledar.vacationcalendar.controller.Calendar"
     xmlns="sap.m"
     xmlns:mvc="sap.ui.core.mvc"
@@ -9,11 +10,12 @@
     height="100%">
     <Page id="page" title="{i18n>title}">
     <headerContent>
+      <Text id="_IDGenText6" text="Filter:"/>
       <SearchField 
-          id="globalSearch" 
-          placeholder="Search by name, last name or position" 
+          id="globalSearch"
+          placeholder="Name, last name or position" 
           liveChange=".onGlobalSearch" 
-          width="35vw"/>
+          width="20vw"/>
     </headerContent>
     <content>
       <layout:Splitter 
@@ -62,27 +64,33 @@
               showWeekNumbers="true"
               showRowHeaders="true"
               rows="{vacationModel>/rows}"
+              rowSelectionChange=".onRowPress"
               height="auto">
             <rows>
               <PlanningCalendarRow 
-                  id="_IDGenPlanningCalendarRow"
-                  icon="{vacationModel>icon}" 
-                  title="{vacationModel>title}"
-                  text="{vacationModel>cargo}"
-                  appointments="{vacationModel>appointments}">       
-                <appointments>
-                  <unified:CalendarAppointment 
+                id="_IDGenPlanningCalendarRow"
+                icon="{vacationModel>icon}" 
+                title="{vacationModel>title}"
+                text="{vacationModel>cargo}"
+                appointments="{vacationModel>appointments}">
+                  <appointments>
+                    <unified:CalendarAppointment 
                       id="_IDGenCalendarAppointment" 
                       startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
                       endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
                       title="{vacationModel>title}"
                       text="{parts: [{ path: 'vacationModel>startDate' },{ path: 'vacationModel>endDate' }],formatter: '.formatDateRange'}"
                       type="{vacationModel>type}" />
-                </appointments>
+                  </appointments>
+                      <customData>
+                        <core:CustomData 
+                          id="_IDGenCustomData" 
+                          key="employeeId" 
+                          value="{vacationModel>id}"/>
+                  </customData>
               </PlanningCalendarRow>
             </rows>
           </PlanningCalendar>
-       
       </layout:Splitter>
     </content>
     </Page>

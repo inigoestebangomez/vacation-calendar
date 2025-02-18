@@ -4,11 +4,15 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
     "sap/ui/core/dnd/DragInfo",
-    "sap/ui/core/dnd/DropInfo"
-], function (Controller, JSONModel, MessageToast, DragInfo, DropInfo) {
+    "sap/ui/core/dnd/DropInfo",
+    "sap/ui/core/CustomData",
+    "sap/ui/layout/library",
+    "sap/ui/core/Fragment"
+], function (Controller, JSONModel, MessageToast, DragInfo, DropInfo, CustomData, layoutLibrary, Fragment) {
     "use strict";
 
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
+
         onInit: function () {
             //para cuando funcione el servicio
             // this.appConfig = {
@@ -17,32 +21,52 @@ sap.ui.define([
             //     tenantId: "https://login.microsoftonline.com/_TENANT_ID", // Tenant ID
             //     scopes: ["Calendars.Read.All", "User.Read.All"]
             // };
-  
-           let oModel = new JSONModel();
 
-           this.getView().setModel(oModel, "vacationModel");
-           //this.loadVacationData(); //para cuando funcione el servicio
+            let oModel = new JSONModel();
+
+            this.getView().setModel(oModel, "vacationModel");
+            //this.loadVacationData(); //para cuando funcione el servicio
 
             //    oModel.attachRequestCompleted(function() {
             //     console.log("Modelo cargado:", oModel.getData());
             //     });
 
-           oModel.loadData("mockdata/vacationModel.json")
+            oModel.loadData("mockdata/vacationModel.json")
 
-           this.getView().attachAfterRendering(function(){
-                let oCalendar = this.byId("_IDGenPlanningCalendar");
-            if (oCalendar) {
-                oCalendar.setStartDate(new Date());
-            }
-        }.bind(this));
+            oModel.attachRequestCompleted(function () {
+                let oData = oModel.getData();
+                console.log("Datos cargados en el modelo:", oData);
+                
+                oData.rows.forEach(function (oEmployee) {
+                    let iTotalDias = 0;
 
+                    if (oEmployee.appointments) {
+                        oEmployee.appointments.forEach(function (oApp) {
+                            let oInicio = new Date(oApp.startDate);
+                            let oFin = new Date(oApp.endDate);
+                            let iDias = Math.ceil((oFin - oInicio) / (1000 * 60 * 60 * 24)) + 1;
+                            iTotalDias += iDias;
+                        });
+                    }
+
+                    oEmployee.totalDias = iTotalDias;
+                    oEmployee.diasRestantes = 25 - iTotalDias;
+
+                    console.log(`Empleado ${oEmployee.title}, Total: ${oEmployee.totalDias}, Restantes: ${oEmployee.diasRestantes}`);
+                });
+                oModel.setData(oData);
+            });
+
+            // estadísticas
+            this._oStatsModel = new JSONModel();
+            this.getView().setModel(this._oStatsModel, "statsModel");
         },
 
         onGlobalSearch: function (oEvent) {
             let sQuery = oEvent.getParameter("newValue");
             // Asegurarse de que sQuery no sea undefined o null antes de toLowerCase()
             sQuery = sQuery ? sQuery.toLowerCase() : "";
-    
+
             let oModel = this.getView().getModel("vacationModel");
             let oData = oModel.getData();
             // Copia original guardada al cargar el modelo
@@ -66,13 +90,13 @@ sap.ui.define([
                 let sNombre = oEmployee.nombre.toLowerCase();
                 let sApellidos = oEmployee.apellidos.toLowerCase();
                 let sCargo = oEmployee.cargo.toLowerCase();
-                return sNombre.includes(sQuery) || 
-                    sApellidos.includes(sQuery) || 
+                return sNombre.includes(sQuery) ||
+                    sApellidos.includes(sQuery) ||
                     sCargo.includes(sQuery);
-        });
+            });
 
-        oData.rows = aFiltered;
-        oModel.setData(oData);
+            oData.rows = aFiltered;
+            oModel.setData(oData);
         },
 
         onSidePanelToggle: function (oEvent) {
@@ -82,7 +106,7 @@ sap.ui.define([
             if (oPanel.getExpanded()) {
                 oSplitterLayoutData.setSize("30%");
             } else {
-                oSplitterLayoutData.setSize("8%");
+                oSplitterLayoutData.setSize("6%");
             }
             oSplitter.rerender();
         },
@@ -92,21 +116,21 @@ sap.ui.define([
                 let oDraggedControl = oEvent.getParameter("draggedControl");
                 let oDroppedControl = oEvent.getParameter("droppedControl");
                 let sDropPosition = oEvent.getParameter("dropPosition");
-        
+
                 let oModel = this.getView().getModel("vacationModel");
                 let aEmployees = oModel.getProperty("/rows");
-        
+
                 let iDraggedIndex = oDraggedControl.getBindingContext("vacationModel").getPath().split("/")[2];
                 let iDroppedIndex = oDroppedControl.getBindingContext("vacationModel").getPath().split("/")[2];
-        
+
                 if (sDropPosition === "After") {
                     iDroppedIndex++;
                 }
-        
+
                 // Reordenar el array
                 let oDraggedEmployee = aEmployees.splice(iDraggedIndex, 1)[0];
                 aEmployees.splice(iDroppedIndex, 0, oDraggedEmployee);
-        
+
                 oModel.setProperty("/rows", aEmployees);
                 MessageToast.show("Employee order updated");
             } catch (error) {
@@ -115,7 +139,7 @@ sap.ui.define([
             }
         },
 
-        getAppToken: async function() {
+        getAppToken: async function () {
             try {
                 const response = await fetch(`https://login.microsoftonline.com/${this.appConfig.tenantId}/oauth2/v2.0/token`, {
                     method: 'POST',
@@ -138,10 +162,10 @@ sap.ui.define([
             }
         },
 
-        loadVacationData: async function() {
+        loadVacationData: async function () {
             try {
                 const token = await this.getAppToken();
-                
+
                 const response = await fetch('https://graph.microsoft.com/v1.0/users', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -176,17 +200,17 @@ sap.ui.define([
             }
         },
 
-        getUserEvents: async function(userId, token) {
+        getUserEvents: async function (userId, token) {
             try {
                 const response = await fetch(
                     `https://graph.microsoft.com/v1.0/users/${userId}/calendar/events?$filter=subject eq 'Vacaciones'`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 );
-        
+
                 if (!response.ok) {
                     throw new Error("Error fetching events for user: " + userId);
                 }
-        
+
                 const data = await response.json();
                 return data.value || [];
             } catch (error) {
@@ -194,18 +218,18 @@ sap.ui.define([
                 return [];
             }
         },
-        
-        getUserPhoto: async function(userId, token) {
+
+        getUserPhoto: async function (userId, token) {
             try {
                 const response = await fetch(
                     `https://graph.microsoft.com/v1.0/users/${userId}/photo/$value`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 );
-        
+
                 if (!response.ok) {
                     throw new Error("Error fetching photo for user: " + userId);
                 }
-        
+
                 const blob = await response.blob();
                 return URL.createObjectURL(blob);
             } catch (error) {
@@ -214,24 +238,67 @@ sap.ui.define([
             }
         },
 
-        formatDate: function(sDate) {
+        formatDate: function (sDate) {
             if (sDate) {
                 return new Date(sDate);
             }
             return null;
         },
 
-        formatDateRange: function(sStartDate, sEndDate) {
+        formatDateRange: function (sStartDate, sEndDate) {
             if (!sStartDate || !sEndDate) return "";
-        
+
             let oStartDate = new Date(sStartDate);
             let oEndDate = new Date(sEndDate);
-        
+
             let options = { day: "2-digit", month: "short" };
-        
+
             return `${oStartDate.toLocaleDateString("en-GB", options)} to ${oEndDate.toLocaleDateString("en-GB", options)}`;
-        }
+        },
+
+        formatRowText: function (sCargo, iTotalDias, iDiasRestantes) {
+            return `${sCargo} · ${iTotalDias} days used - ${iDiasRestantes} remaining.`;
+        },
+
+        onRowPress: function(oEvent) {
+            // 1️⃣ Obtener el PlanningCalendar
+            let oCalendar = this.byId("_IDGenPlanningCalendar");
+            if (!oCalendar) {
+                sap.m.MessageToast.show("No se encontró el calendario");
+                return;
+            }
         
+            // 2️⃣ Obtener las filas seleccionadas
+            let aSelectedRows = oCalendar.getSelectedRows();
+            if (!aSelectedRows || aSelectedRows.length === 0) {
+                sap.m.MessageToast.show("Ninguna fila seleccionada");
+                return;
+            }
+        
+            // 3️⃣ Tomar la primera fila seleccionada
+            let oRow = aSelectedRows[0];
+        
+            // 4️⃣ Obtener el contexto de la fila
+            let oContext = oRow.getBindingContext("vacationModel");
+            if (!oContext) {
+                sap.m.MessageToast.show("No se encontró el contexto del empleado");
+                return;
+            }
+        
+            // 5️⃣ Obtener el ID del empleado desde el modelo
+            let sPath = oContext.getPath(); // "/rows/0"
+            let oModel = this.getView().getModel("vacationModel");
+            let oEmpleado = oModel.getProperty(sPath);
+        
+            if (!oEmpleado) {
+                sap.m.MessageToast.show("Empleado no encontrado");
+                return;
+            }
+        
+            // 6️⃣ Redirigir a la página de detalles del empleado
+            let oRouter = this.getOwnerComponent().getRouter();
+            oRouter.navTo("employeeDetail", { employeeId: sPath.split("/")[2] }); // Extraer ID de "/rows/0"
+        }
         
     });
 });
