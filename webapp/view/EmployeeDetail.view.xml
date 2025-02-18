@@ -89,7 +89,8 @@
                         class="sapUiMediumMarginBottom">
                         <Title
                             id="statsTitle"
-                            text="Statistics"/>
+                            text="Statistics:"
+                            class= "customText -margin--bottom"/>
                         <VBox
                             id="statsBox"
                             justifyContent="SpaceBetween"
