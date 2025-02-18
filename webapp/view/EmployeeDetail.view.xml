@@ -84,7 +84,10 @@
                             </VBox>
                         </CustomListItem>
                     </List>
-                    <VBox
+                </f:content>
+            </f:SimpleForm>
+            <f:SimpleForm>
+             <VBox
                         id="statsContainer"
                         class="sapUiMediumMarginBottom">
                         <Title
@@ -118,11 +121,10 @@
                         <ProgressIndicator
                             id="vacationProgress"
                             percentValue="{= ${statsModel>/diasConsumidos} / ${statsModel>/diasMaximos} * 100 }"
-                            displayValue="{= ${statsModel>/diasConsumidos} + ' de ' + ${statsModel>/diasMaximos} + ' días'}"
+                            displayValue="{= ${statsModel>/diasConsumidos} + ' of ' + ${statsModel>/diasMaximos} + ' days'}"
                             showValue="true"
                             state="{= ${statsModel>/diasRestantes} > 10 ? 'Success' : 'Warning' }"/>
                     </VBox>
-                </f:content>
             </f:SimpleForm>
         </content>
     </Page>

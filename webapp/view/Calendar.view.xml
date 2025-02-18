@@ -8,14 +8,18 @@
     xmlns:f="sap.f"
     xmlns:layout="sap.ui.layout"
     height="100%">
-    <Page id="page" title="{i18n>title}">
+    <Page 
+      id="page" 
+      title="{i18n>title}">
     <headerContent>
-      <Text id="_IDGenText6" text="Filter:"/>
+      <Text 
+        id="_IDGenText6" 
+        text="Filter:"/>
       <SearchField 
           id="globalSearch"
           placeholder="Name, last name or position" 
           liveChange=".onGlobalSearch" 
-          width="20vw"/>
+          width="25vw"/>
     </headerContent>
     <content>
       <layout:Splitter 
