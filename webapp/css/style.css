@@ -1,43 +1,54 @@
 :root {
---color--blue: #449bff;
+  --color--blue: #449bff;
+  --color--brown: #ac8400;
 
---px-to-rem--14: 0.875rem;
---px-to-rem--16: 1rem;
---px-to-rem--18: 1.125rem;
+  --px-to-rem--14: 0.875rem;
+  --px-to-rem--16: 1rem;
+  --px-to-rem--18: 1.125rem;
+  --px-to-rem--180: 11.25rem;
 
---margin--8: 0.5rem;
---margin--14: 0.875rem;
---margin--16: 1rem;
---margin--18: 1.125rem;
+  --margin--8: 0.5rem;
+  --margin--14: 0.875rem;
+  --margin--16: 1rem;
+  --margin--18: 1.125rem;
 }
 
 .img--avatar {
-    border-radius: var(--px-to-rem--18);
-    margin-bottom: var(--margin--16)
+  border-radius: 50%;
+  margin-bottom: var(--margin--16);
 }
 
 .customTitle {
-    font-weight: bold;
-    font-size: var(--px-to-rem--16);
-    margin: var(--margin--16)
+  font-weight: bold;
+  font-size: var(--px-to-rem--16);
+  margin: var(--margin--16);
+}
+
+.highlightedTitle {
+  font-weight: bold;
+  color: var(--color--blue);
 }
 
 .customName {
-    color: var(--color--blue);
-    font-weight: bold;
-    font-size: var(--px-to-rem--16)
+  color: var(--color--blue);
+  font-weight: bold;
+  font-size: var(--px-to-rem--16);
 }
 
 .customText {
-    color: var(--color--blue);
-    font-weight: bold;
-    font-size: var(--px-to-rem--14)
+  color: var(--color--blue);
+  font-weight: bold;
+  font-size: var(--px-to-rem--14);
 }
 
 .-margin--bottom {
-    margin-bottom: var(--margin--8)
+  margin-bottom: var(--margin--8);
 }
 
 .-margin--left {
-    margin-left: var(--margin--8);
+  margin-left: var(--margin--8);
+}
+
+.editButton {
+  color: var(--color--brown);
 }

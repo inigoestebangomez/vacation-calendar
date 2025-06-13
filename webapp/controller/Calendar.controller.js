@@ -7,38 +7,91 @@ sap.ui.define([
     "sap/ui/core/dnd/DropInfo",
     "sap/ui/core/CustomData",
     "sap/ui/layout/library",
-    "sap/ui/core/Fragment"
-], function (Controller, JSONModel, MessageToast, DragInfo, DropInfo, CustomData, layoutLibrary, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/ui/unified/CalendarDayType",
+    "sap/m/Dialog",
+    "sap/m/VBox",
+    "sap/m/Label",
+    "sap/m/Button"
+], function (
+    Controller, 
+    JSONModel, 
+    MessageToast, 
+    DragInfo, 
+    DropInfo, 
+    CustomData, 
+    layoutLibrary, 
+    Fragment, 
+    CalendarDayType, 
+    Dialog, 
+    VBox, 
+    Label, 
+    Button) {
     "use strict";
+
+    // Función para generar un code_verifier (cadena aleatoria segura)
+    function generateCodeVerifier() {
+        const array = new Uint8Array(32);
+        window.crypto.getRandomValues(array);
+        return btoa(String.fromCharCode.apply(null, array))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
+
+    // Función para generar el code_challenge a partir del code_verifier (SHA-256)
+    async function generateCodeChallenge(codeVerifier) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(codeVerifier);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode.apply(null, new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    }
 
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
 
-        onInit: function () {
-            //para cuando funcione el servicio
-            // this.appConfig = {
-            //     clientId: "CLIENT_ID", // Client ID de Microsoft Entra ID
-            //     clientSecret: "CLIENT_SECRET", // Client Secret de Microsoft.
-            //     tenantId: "https://login.microsoftonline.com/_TENANT_ID", // Tenant ID
-            //     scopes: ["Calendars.Read.All", "User.Read.All"]
-            // };
+        onInit: async function () {
+            try {
+                const response = await fetch("http://localhost:3000/api/config");
+                if (!response.ok) {
+                    throw new Error(`Error fetching configuration: ${response.status}`);
+                }
+        
+                this.appConfig = await response.json();
+        
+                const urlParams = new URLSearchParams(window.location.search);
+                const authCode = urlParams.get("code");
+                // console.log("onInit: Código de autorización en URL:", authCode);
+        
+                let oModel = new JSONModel();
+                this.getView().setModel(oModel, "vacationModel");
+        
+                if (authCode) {
+                    // console.log("onInit: Se encontró un código de autorización, procesando...");
+                    await this.handleAuthCode(authCode);
+                    await this.loadVacationData();
+                } else {
+                    // console.log("onInit: No hay código de autorización, cargando directamente...");
+                    await this.loadVacationData();
+                }
 
-            let oModel = new JSONModel();
-
-            this.getView().setModel(oModel, "vacationModel");
-            //this.loadVacationData(); //para cuando funcione el servicio
-
-            //    oModel.attachRequestCompleted(function() {
-            //     console.log("Modelo cargado:", oModel.getData());
-            //     });
-
-            oModel.loadData("mockdata/vacationModel.json")
+                await this.onFetchDepartments();
+        
+            } catch (err) {
+                // console.error("Error en onInit:", err);
+                sap.m.MessageToast.show("Error initializing the app");
+            }
 
             oModel.attachRequestCompleted(function () {
                 let oData = oModel.getData();
-                console.log("Datos cargados en el modelo:", oData);
-                
+                // console.log("Datos cargados en el modelo:", oData);
+
                 oData.rows.forEach(function (oEmployee) {
+                    
                     let iTotalDias = 0;
+                    let iDisponibles = 25;
 
                     if (oEmployee.appointments) {
                         oEmployee.appointments.forEach(function (oApp) {
@@ -47,12 +100,12 @@ sap.ui.define([
                             let iDias = Math.ceil((oFin - oInicio) / (1000 * 60 * 60 * 24)) + 1;
                             iTotalDias += iDias;
                         });
-                    }
+                    };
 
                     oEmployee.totalDias = iTotalDias;
-                    oEmployee.diasRestantes = 25 - iTotalDias;
+                    oEmployee.diasRestantes = iDisponibles - iTotalDias;
 
-                    console.log(`Empleado ${oEmployee.title}, Total: ${oEmployee.totalDias}, Restantes: ${oEmployee.diasRestantes}`);
+                    // console.log(`Empleado ${oEmployee.title}, Total: ${oEmployee.totalDias}, Restantes: ${oEmployee.diasRestantes}`);
                 });
                 oModel.setData(oData);
             });
@@ -60,6 +113,11 @@ sap.ui.define([
             // estadísticas
             this._oStatsModel = new JSONModel();
             this.getView().setModel(this._oStatsModel, "statsModel");
+        },
+
+        _getText: function (sKey, aArgs) {
+            const oBundle = this.getView().getModel("i18n").getResourceBundle();
+            return oBundle.getText(sKey, aArgs);
         },
 
         onGlobalSearch: function (oEvent) {
@@ -87,17 +145,77 @@ sap.ui.define([
 
             // Filtrar el array
             let aFiltered = oData.originalRows.filter(function (oEmployee) {
-                let sNombre = oEmployee.nombre.toLowerCase();
-                let sApellidos = oEmployee.apellidos.toLowerCase();
-                let sCargo = oEmployee.cargo.toLowerCase();
-                return sNombre.includes(sQuery) ||
-                    sApellidos.includes(sQuery) ||
-                    sCargo.includes(sQuery);
+                let name = (oEmployee.title || "").toLowerCase();
+                let email = (oEmployee.email || "").toLowerCase();
+                let department = Array.isArray(oEmployee.department) ? oEmployee.department.join(" ").toLowerCase() : "";
+            return  name.includes(sQuery) ||
+                    email.includes(sQuery) ||
+                    department.includes(sQuery);
             });
 
             oData.rows = aFiltered;
             oModel.setData(oData);
         },
+
+        _applyDepartmentFilter: function() {
+            const oCombo = this.byId("filterBy");
+            const aKeys  = oCombo.getSelectedItems().map(i => i.getKey());
+        
+            const oModel = this.getView().getModel("vacationModel");
+            const oData  = oModel.getData();
+        
+            // Guardar copia original si no existe
+            if (!oData.originalRows) {
+                oData.originalRows = JSON.parse(JSON.stringify(oData.rows));
+            }
+        
+            if (aKeys.length === 0) {
+                oData.rows = JSON.parse(JSON.stringify(oData.originalRows));
+            } else {
+                oData.rows = oData.originalRows.filter(emp => {
+                    const depts = emp.department;
+                    return Array.isArray(depts)
+                        ? depts.some(d => aKeys.includes(d))
+                        : aKeys.includes(depts);
+                });
+            }
+            oModel.setData(oData);
+        },                
+        
+        onDepartmentFilter: function(oEvent) {
+            this._applyDepartmentFilter();
+        },
+
+        onFetchDepartments: async function() {
+            try {
+              // 1) Traer departamentos del servidor
+              const response = await fetch("http://localhost:3000/departments");
+              if (!response.ok) {
+                throw new Error(`Error fetching departments: ${response.status}`);
+              }
+              const aDepartments = await response.json();
+            //   console.log("Departamentos obtenidos:", aDepartments);
+          
+              // 2) Actualizar el modelo con la lista bajo la misma propiedad que tu XML bindea
+              const oModel = this.getView().getModel("vacationModel");
+              if (!oModel) {
+                console.warn(this._getText("vacationModelNotReady"));
+                return;
+                }
+              const oData  = oModel.getData() || {};
+              oData.department = aDepartments;
+              oModel.setData(oData);
+          
+              // 3) Disparar el filtrado
+              this.onDepartmentFilter();
+          
+              return aDepartments;
+            } catch (error) {
+            //   console.error("Error fetching departments:", error);
+              MessageToast.show(this._getText("errorLoadingDepartments"));
+              return [];
+            }
+        },      
 
         onSidePanelToggle: function (oEvent) {
             let oPanel = oEvent.getSource();
@@ -132,111 +250,241 @@ sap.ui.define([
                 aEmployees.splice(iDroppedIndex, 0, oDraggedEmployee);
 
                 oModel.setProperty("/rows", aEmployees);
-                MessageToast.show("Employee order updated");
+                MessageToast.show(this._getText("employeeOrderUpdated"));
             } catch (error) {
                 console.error("Error in onEmployeeDrop:", error);
-                MessageToast.show("Error reordering employee: " + error.message);
+                MessageToast.show(this._getText("errorReorderingEmployee" + error.message));
             }
         },
 
-        getAppToken: async function () {
-            try {
-                const response = await fetch(`https://login.microsoftonline.com/${this.appConfig.tenantId}/oauth2/v2.0/token`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: new URLSearchParams({
-                        client_id: this.appConfig.clientId,
-                        client_secret: this.appConfig.clientSecret,
-                        scope: 'https://graph.microsoft.com/.default',
-                        grant_type: 'client_credentials'
-                    })
-                });
-
-                const data = await response.json();
-                return data.access_token;
-            } catch (error) {
-                MessageToast.show("Error when getting token: " + error);
-                throw error;
+        handleAuthCode: async function(authCode) {
+            // console.log("handleAuthCode: Procesando código de autorización", authCode);
+    
+            // Intercambiar el código por un token
+            const success = await this.exchangeAuthCodeForToken(authCode);
+            // console.log("handleAuthCode: Resultado del intercambio:", success ? "Éxito" : "Fallo");
+            
+            if (success) {
+                // Cargar datos con el token recién obtenido
+                this.loadVacationData();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // console.error("handleAuthCode: No se pudo obtener el token");
+                MessageToast.show(this._getText("errorObtainingAuthToken"));
             }
+        },
+
+        getAuthCode: async function () {
+            const codeVerifier = generateCodeVerifier();
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            
+            // console.log("Guardando code_verifier:", codeVerifier);
+            sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+            // console.log("Verificando en sessionStorage (inmediatamente):", sessionStorage.getItem("pkce_code_verifier"));
+
+            const authUrl = `https://login.microsoftonline.com/${this.appConfig.tenantId}/oauth2/v2.0/authorize?` +
+                new URLSearchParams({
+                    client_id: this.appConfig.clientId,
+                    response_type: "code",
+                    redirect_uri: this.appConfig.redirectUri,
+                    scope: this.appConfig.scope,
+                    response_mode: "query",
+                    code_challenge: codeChallenge,
+                    code_challenge_method: "S256"
+                });
+            // console.log("getAuthCode: Redirigiendo a:", authUrl);
+
+            setTimeout(() => {
+                // console.log("Verificando en sessionStorage (después de 100ms):", sessionStorage.getItem("pkce_code_verifier"));
+                window.location.href = authUrl;
+            }, 100);
+
+        },
+
+        getAuthCodeFromUrl: function () {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("code");
+        },
+
+        exchangeAuthCodeForToken: async function (authCode) {
+            try {
+                const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
+                if (!codeVerifier) {
+                    throw new Error(this._getText("codeVerifierNotFound"));
+                }
+        
+                const response = await fetch("http://localhost:3000/auth/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: authCode, code_verifier: codeVerifier })
+                });
+        
+                const data = await response.json();
+                // console.log("exchangeAuthCodeForToken: Respuesta del backend:", data);
+        
+                if (data.access_token) {
+                    sessionStorage.setItem("access_token", data.access_token);
+                    return true;
+                } else {
+                    throw new Error(data.error_description || "Failed to get access token");
+                }
+            } catch (error) {
+                console.error(this._getText("errorExchAuthCodeForToken", error));
+                return false;
+            }
+        },  
+
+        getAppToken: async function () {
+            let token = sessionStorage.getItem("access_token");
+            // console.log("getAppToken: Token actual:", token);
+            if (token) return token;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const authCode = urlParams.get("code");
+
+            if (authCode) {
+                const success = await this.exchangeAuthCodeForToken(authCode);
+                // console.log("getAppToken: Intercambio de token:", success);
+                if (success) return sessionStorage.getItem("access_token");
+            } else {
+                await this.getAuthCode();
+            };
         },
 
         loadVacationData: async function () {
+            const token = await this.getAppToken();
+            // console.log("Token obtenido:", token);
+
             try {
-                const token = await this.getAppToken();
+                const response = await fetch("http://localhost:3000/employees");
+                if (!response.ok) throw new Error(`Error fetching employees: ${response.status}`);
+                const employees = await response.json();
 
-                const response = await fetch('https://graph.microsoft.com/v1.0/users', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const userData = await response.json();
+                // Cargar nombres rápidamente
+                const namePromises = employees.map(emp => this.getUserNames(emp.id, token));
+                const names = await Promise.all(namePromises);
 
-                const usersWithEvents = await Promise.all(userData.value.map(async user => {
-                    const [events, photo] = await Promise.all([
-                        this.getUserEvents(user.id, token),
-                        this.getUserPhoto(user.id, token)
-                    ]);
-
-                    return {
-                        icon: photo,
-                        title: user.displayName,
-                        appointments: events.map(event => ({
-                            startDate: new Date(event.start.dateTime),
-                            endDate: new Date(event.end.dateTime),
-                            title: "Vacaciones",
-                            type: "Type05"
-                        }))
-                    };
+                const rows = employees.map((emp, i) => ({
+                    id: emp.id,
+                    title: names[i]?.name || "Sin nombre",
+                    email: emp.email,
+                    department: emp.departments,
+                    icon: "sap-icon://person-placeholder",
+                    admin: emp.admin,
+                    appointments: [], 
                 }));
+                console.log("Cargando datos de empleados:", rows);
 
+                // Mostrar el calendario con nombres
                 const oModel = this.getView().getModel("vacationModel");
+                oModel.setProperty("/rows", rows);
+                oModel.updateBindings(true);
 
-                oModel.setData({
-                    rows: usersWithEvents
+                MessageToast.show(this._getText("loadingDataMessage"));
+
+                // Cargar eventos *en paralelo* sin bloquear UI
+                const appointmentsPromises = employees.map(emp => this.getUserEvents(emp.id, token));
+                const allAppointments = await Promise.all(appointmentsPromises);
+
+                // Insertar eventos y actualizar modelo de nuevo
+                rows.forEach((row, i) => {
+                    row.appointments = allAppointments[i];
                 });
+
+                oModel.setProperty("/rows", rows);
+                oModel.updateBindings(true);
+
+                MessageToast.show(this._getText("loadingDataSuccess"));
 
             } catch (error) {
-                MessageToast.show("Error when getting data: " + error);
+                console.error("Error loading data:", error);
+                MessageToast.show("Error loading data");
+            }
+        },
+        
+        getUserNames: async function (userId, token) {
+            try {
+                const response = await fetch(`http://localhost:3000/user/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(this._getText("errorFetchingUserData " + userId));
+                }
+                
+                const data = await response.json();
+                // console.log("getUserNames data:", data);
+                return {
+                    name: data.name
+                };
+                
+            } catch (error) {
+                console.error(this._getText("errorFetchingUserData ", userId));
+                return {};
             }
         },
 
-        getUserEvents: async function (userId, token) {
+        getUserEvents: async function (email, token) {
+            // console.log("Ejecutando getUserEvents con email:", email);
             try {
-                const response = await fetch(
-                    `https://graph.microsoft.com/v1.0/users/${userId}/calendar/events?$filter=subject eq 'Vacaciones'`,
-                    { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-
+                const response = await fetch(`http://localhost:3000/user/${email}/events`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+        
                 if (!response.ok) {
-                    throw new Error("Error fetching events for user: " + userId);
+                    throw new Error(this._getText("errorFetchingEventsUser " + email));
                 }
-
+        
                 const data = await response.json();
-                return data.value || [];
+                const events = data.value || [];
+                // console.log(data)
+                return events.map(event => {
+                    // Parsear las fechas desde el string ISO
+                    const startDate = new Date(event.start.dateTime);
+                    const endDate = new Date(event.end.dateTime);
+                    
+                    return {
+                        startDate: startDate,
+                        endDate: endDate,
+                        title: event.subject,
+                        type: CalendarDayType.Type01,
+                        tooltip: event.subject
+                    };
+                });
             } catch (error) {
-                console.error(error);
+                console.error(this._getText(`errorFetchingEventsUser ${email}:`, error));
                 return [];
             }
         },
 
-        getUserPhoto: async function (userId, token) {
-            try {
-                const response = await fetch(
-                    `https://graph.microsoft.com/v1.0/users/${userId}/photo/$value`,
-                    { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Error fetching photo for user: " + userId);
-                }
-
-                const blob = await response.blob();
-                return URL.createObjectURL(blob);
-            } catch (error) {
-                console.warn("No profile picture found for user:", userId);
-                return "sap-icon://person-placeholder";
-            }
-        },
+        // getUserPhoto: async function (email, token) {
+        //     console.log("Ejecutando getUserPhoto con email:", email);
+        //     try {
+        //         const response = await fetch("http://localhost:3000/user/profile_pic", {
+        //             headers: { 'Authorization': `Bearer ${token}` }
+        //         });
+        
+        //         if (!response.ok) {
+        //             throw new Error("Error fetching photo for user: " + email);
+        //         }
+        
+        //         // Convertir la respuesta a blob (imagen)
+        //         const blob = await response.blob();
+        //         const imageUrl = URL.createObjectURL(blob); // Crear URL de la imagen
+        //         console.log(imageUrl)
+        
+        //         const oModel = this.getView().getModel("vacationModel");
+        //         const oData = oModel.getData();
+        
+        //         // Actualizar el modelo con la imagen
+        //         oData.rows[0].icon = imageUrl;
+        //         oModel.refresh(true);
+        
+        //     } catch (error) {
+        //         console.warn("No profile picture found for user:", email);
+        //         return "sap-icon://person-placeholder"; // Icono por defecto si no hay foto
+        //     }
+        // },
 
         formatDate: function (sDate) {
             if (sDate) {
@@ -253,52 +501,104 @@ sap.ui.define([
 
             let options = { day: "2-digit", month: "short" };
 
-            return `${oStartDate.toLocaleDateString("en-GB", options)} to ${oEndDate.toLocaleDateString("en-GB", options)}`;
+            let formatedStartDate = oStartDate.toLocaleDateString("en-GB", options);
+            let formatedEndDate = oEndDate.toLocaleDateString("en-GB", options);
+
+            return `${formatedStartDate} to ${formatedEndDate}`;
         },
 
         formatRowText: function (sCargo, iTotalDias, iDiasRestantes) {
             return `${sCargo} · ${iTotalDias} days used - ${iDiasRestantes} remaining.`;
         },
 
-        onRowPress: function(oEvent) {
-            // 1️⃣ Obtener el PlanningCalendar
-            let oCalendar = this.byId("_IDGenPlanningCalendar");
+        onRowPress: function (oEvent) {
+            const oCalendar = this.byId("_IDGenPlanningCalendar");
             if (!oCalendar) {
-                sap.m.MessageToast.show("No se encontró el calendario");
+                sap.m.MessageToast.show(this._getText("calendarNotFound"));
                 return;
             }
         
-            // 2️⃣ Obtener las filas seleccionadas
-            let aSelectedRows = oCalendar.getSelectedRows();
+            const aSelectedRows = oCalendar.getSelectedRows();
             if (!aSelectedRows || aSelectedRows.length === 0) {
-                sap.m.MessageToast.show("Ninguna fila seleccionada");
+                sap.m.MessageToast.show(this._getText("noRowSelected"));
                 return;
             }
         
-            // 3️⃣ Tomar la primera fila seleccionada
-            let oRow = aSelectedRows[0];
-        
-            // 4️⃣ Obtener el contexto de la fila
-            let oContext = oRow.getBindingContext("vacationModel");
+            const oRow = aSelectedRows[0];
+            const oContext = oRow.getBindingContext("vacationModel");
             if (!oContext) {
-                sap.m.MessageToast.show("No se encontró el contexto del empleado");
+                sap.m.MessageToast.show(this._getText("employeeContextNotFound"));
                 return;
             }
         
-            // 5️⃣ Obtener el ID del empleado desde el modelo
-            let sPath = oContext.getPath(); // "/rows/0"
-            let oModel = this.getView().getModel("vacationModel");
-            let oEmpleado = oModel.getProperty(sPath);
-        
-            if (!oEmpleado) {
-                sap.m.MessageToast.show("Empleado no encontrado");
+            const sPath = oContext.getPath();
+            const oModel = this.getView().getModel("vacationModel");
+            const oEmpleado = oModel.getProperty(sPath);
+            if (!oEmpleado || !oEmpleado.id) {
+                sap.m.MessageToast.show(this._getText("invalidEmployee"));
                 return;
             }
         
-            // 6️⃣ Redirigir a la página de detalles del empleado
-            let oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("employeeDetail", { employeeId: sPath.split("/")[2] }); // Extraer ID de "/rows/0"
+            const sEmployeeId = oEmpleado.id;
+        
+            // Asegurarse de que el modelo esté sincronizado con el componente
+            const oComponentModel = this.getOwnerComponent().getModel("vacationModel") || new sap.ui.model.json.JSONModel();
+            oComponentModel.setData(oModel.getData());
+            this.getOwnerComponent().setModel(oComponentModel, "vacationModel");
+        
+            // Comprobamos si ya estamos en esa ruta
+            const oRouter = this.getOwnerComponent().getRouter();
+            const oHashChanger = sap.ui.core.routing.HashChanger.getInstance();
+            const sCurrentHash = oHashChanger.getHash();
+            const sTargetHash = `employee/${sEmployeeId}`;
+        
+            if (sCurrentHash !== sTargetHash) {
+                oRouter.navTo("employeeDetail", { employeeId: sEmployeeId });
+            }
+        },
+
+        onAppointmentSelect: function (oEvent) {
+            const oAppointment = oEvent.getParameter("appointment");
+            const oBindingContext = oAppointment.getBindingContext("vacationModel");
+            const oData = oBindingContext.getObject();
+
+            const sFormattedDateRange = this.formatDateRange(oData.startDate, oData.endDate);
+        
+            if (!this._oPopover) {
+                this._oPopover = new sap.m.ResponsivePopover({
+                    title: this._getText("details"),
+                    contentWidth: "250px",
+                    placement: sap.m.PlacementType.Auto,
+                    content: new sap.ui.layout.form.SimpleForm({
+                        content: [
+                            new sap.m.Label({ text: this._getText("popUpTitle") }),
+                            new sap.m.Text({ text: oData.title }),
+                            new sap.m.Label({ text: this._getText("duration") }),
+                            new sap.m.Text({ text: sFormattedDateRange })
+                        ]
+                    }),
+                    endButton: new sap.m.Button({
+                        text: "Close",
+                        press: function () {
+                            this._oPopover.close();
+                        }.bind(this)
+                    }),
+                    afterClose: function () {
+                        this._oPopover.destroy();
+                        this._oPopover = null;
+                    }.bind(this)
+                });
+            }
+        
+            this._oPopover.openBy(oAppointment);
+        },
+        
+        onPressButton: function () {
+            let oRouter = this.getOwnerComponent().getRouter(this);
+            oRouter.navTo("admin", {
+                employeeId: "new"
+            });
         }
-        
+
     });
 });

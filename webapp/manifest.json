@@ -68,8 +68,7 @@
         }
       },
       "vacationModel":{
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "test/mockdata/vacationModel.json"
+        "type": "sap.ui.model.json.JSONModel"
       }
     },
     "resources": {
@@ -88,8 +87,7 @@
         "type": "View",
         "viewType": "XML",
         "path": "vacation.caledar.vacationcalendar.view",
-        "async": true,
-        "viewPath": "vacation.caledar.vacationcalendar.view"
+        "async": true
       },
       "routes": [
         {
@@ -105,6 +103,13 @@
           "target": [
             "employeeDetail"
           ]
+        },
+        {
+          "pattern": "admin",
+          "name": "admin",
+          "target": [
+            "admin"
+          ]
         }
       ],
       "targets": {
@@ -117,6 +122,11 @@
             "id": "EmployeeDetail",
             "name": "EmployeeDetail",
             "viewLevel": 2
+        },
+        "admin":{
+          "id": "Admin",
+          "name": "Admin",
+          "viewLevel": 2
         }
       }
     },

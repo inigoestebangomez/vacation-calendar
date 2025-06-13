@@ -14,12 +14,33 @@
     <headerContent>
       <Text 
         id="_IDGenText6" 
-        text="Filter:"/>
+        text="{i18n>filterTitle}"/>
       <SearchField 
           id="globalSearch"
-          placeholder="Name, last name or position" 
+          placeholder="{i18n>searchPlaceholder}" 
           liveChange=".onGlobalSearch" 
           width="25vw"/>
+    <layout:HorizontalLayout
+        id="_IDGenHorizontalLayout"
+        width="100%"
+        class="sapUiContentPadding">
+        <Text text="{i18n>departmentFilterTitle}"/>
+        <MultiComboBox
+          maxWidth="25vw"
+          id="filterBy"
+          selectionChange=".onFetchDepartments"
+          items="{vacationModel>/department}">
+          <core:Item 
+            id="_IDGenItem" 
+            key="{vacationModel>department}" 
+            text="{vacationModel>department}"/>
+        </MultiComboBox>
+    </layout:HorizontalLayout>
+      <Button
+        id="adminButton"
+        text="{i18n>adminButton}"
+        icon="sap-icon://locked"
+        press=".onPressButton"/>
     </headerContent>
     <content>
       <layout:Splitter 
@@ -30,7 +51,7 @@
         orientation="Vertical">
           <Panel 
             id="sidePanel" 
-            headerText="Reorder Employees" 
+            headerText="{i18n>reorderEmployees}" 
             expandable="true"
             expanded="false"
             expand=".onSidePanelToggle"
@@ -43,8 +64,8 @@
               <items>
                 <StandardListItem 
                   id="_IDGenStandardListItem1" 
-                  title="{vacationModel>title}" 
-                  description="{vacationModel>cargo}" 
+                  title="{vacationModel>title}"
+                  description="{vacationModel>department}"
                   type="Active"/>
               </items>
               <dragDropConfig>
@@ -65,8 +86,10 @@
               id="_IDGenPlanningCalendar"
               viewKey="Month"
               appointmentsVisualization="Filled"
+              appointmentSelect=".onAppointmentSelect"
               showWeekNumbers="true"
               showRowHeaders="true"
+              stickyHeader="true"
               rows="{vacationModel>/rows}"
               rowSelectionChange=".onRowPress"
               height="auto">
@@ -75,7 +98,7 @@
                 id="_IDGenPlanningCalendarRow"
                 icon="{vacationModel>icon}" 
                 title="{vacationModel>title}"
-                text="{vacationModel>cargo}"
+                text="{vacationModel>department}"
                 appointments="{vacationModel>appointments}">
                   <appointments>
                     <unified:CalendarAppointment 
@@ -83,8 +106,12 @@
                       startDate="{ path: 'vacationModel>startDate', formatter: '.formatDate' }"
                       endDate="{ path: 'vacationModel>endDate', formatter: '.formatDate' }"
                       title="{vacationModel>title}"
-                      text="{parts: [{ path: 'vacationModel>startDate' },{ path: 'vacationModel>endDate' }],formatter: '.formatDateRange'}"
-                      type="{vacationModel>type}" />
+                      text="{parts: 
+                              [{ path: 'vacationModel>startDate' },
+                              { path: 'vacationModel>endDate' }],
+                              formatter: '.formatDateRange'}"
+                      type="{vacationModel>type}"
+                      tentative="{tentative}"/>
                   </appointments>
                       <customData>
                         <core:CustomData 

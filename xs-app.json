@@ -1,0 +1,12 @@
+// {
+//   "authenticationMethod": "route",
+//   "routes": [
+//     {
+//       "source": "^/api/ms-graph/(.*)$",
+//       "destination": "ms-graph-api",
+//       "csrfProtection": false,
+//       "authenticationType": "xsuaa",
+//       "rewrite": "/v1.0/$1"
+//     }
+//   ]
+// }

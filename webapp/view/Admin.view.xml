@@ -1,0 +1,177 @@
+<mvc:View
+    id="_Admin"
+    xmlns:unified="sap.ui.unified"
+    xmlns:core="sap.ui.core"
+    controllerName="vacation.caledar.vacationcalendar.controller.Admin"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:type="sap.ui.model.type"
+    height="100%">
+    <Page
+        id="admin"
+        title="{i18n>appTitle}"
+        showNavButton="true"
+        navButtonPress=".onNavBack">
+        <headerContent>
+            <Button 
+                id="addEmployeeButton"
+                text="Add Employee"
+                icon="sap-icon://add"
+                press=".onAddEmployee">
+            </Button>
+            
+        </headerContent>
+        <content>
+            <VBox
+                id="employeeListContainer"
+                class="sapUiSmallMargin">
+                <List
+                    id="employeeList"
+                    items="{vacationModel>/employees}"
+                    mode="None"
+                    includeItemInSelection="true">
+                    <items>
+                        <CustomListItem type="Active" press=".onEmployeeItemPress">
+                            <HBox alignItems="Center" justifyContent="SpaceBetween" class="sapUiSmallMargin">
+                                <HBox>
+                                    <Text
+                                        id="employeeName"
+                                        text="{vacationModel>name}"
+                                        class="sapUiLargeMarginBeginEnd customName"/>
+                                    <Text
+                                        id="employeeEmail"
+                                        text="{vacationModel>email}"
+                                        class="sapUiLargeMarginBeginEnd"/>
+                                    <Text
+                                        id="employeeDepartment"
+                                        text="{path: 'vacationModel>departments', formatter: '.formatDepartmentName'}"
+                                        class="sapUiLargeMarginBeginEnd"/>
+                                </HBox>
+                            </HBox>
+
+                            <Panel id="_details" expandable="false" expanded="false" visible="false">
+                                <VBox class="sapUiSmallMarginTop">
+                                    <Text id="nameText" text="Name: {vacationModel>name}" class="sapUiTinyMarginBottom"/>
+                                    <Input id="nameEdit" value="{vacationModel>name}" visible="false" class="sapUiTinyMarginBottom"/>
+
+                                    <Text id="emailText" text="Email: {vacationModel>email}" class="sapUiTinyMarginBottom"/>
+                                    <Input id="emailEdit" value="{vacationModel>email}" visible="false" class="sapUiTinyMarginBottom"/>
+
+                                    <Text id="adminText" text="Admin: {= ${vacationModel>admin} === 1 ? 'Yes' : 'No'}" class="sapUiTinyMarginBottom"/>
+                                    <CheckBox id="adminEdit" selected="{= ${vacationModel>admin} === 1 }" visible="false" text="Admin" class="sapUiTinyMarginBottom"/>
+
+                                    <Text id="departmentsText" text="Departments: {path: 'vacationModel>departments', formatter: '.formatDepartmentName'}" class="sapUiTinyMarginBottom"/>
+
+                                    <MultiComboBox id="departmentsEdit"
+                                    selectedKeys="{vacationModel>selectedDepartmentIds}"
+                                    visible="false"
+                                    items="{vacationModel>/allDepartments}"
+                                    class="sapUiTinyMarginBottom"
+                                    placeholder="Selecciona departamentos...">
+                                    <core:Item key="{vacationModel>id}" text="{vacationModel>department}" />
+                                    </MultiComboBox>
+
+                                    <FlexBox alignItems="End" justifyContent="End" class="sapUiSmallMargin">
+                                        <Button id="editBtn" text="Edit" press=".onEditEmployee" type="Attention"/>
+                                        <Button id="saveBtn" text="Save" press=".onSaveEmployee" visible="false" type="Success" class="sapUiTinyMarginBegin"/>
+                                        <Button id="cancelBtn" text="Cancel" press=".onCancelEdit" visible="false" type="Emphasized" class="sapUiTinyMarginBegin"/>
+                                        <Button id="deleteBtn" text="Delete" press=".onDeleteEmployee" type="Reject" class="sapUiTinyMarginBegin"/>
+                                        <Button id="closeBtn" text="Close" press=".onClosePanel" class="sapUiMediumMarginBegin"/>
+                                    </FlexBox>
+                                </VBox>
+                            </Panel>
+                        </CustomListItem>
+                    </items>                                         
+                </List>
+            </VBox>
+        </content>
+    </Page>
+
+    <Dialog 
+        id="createEmployeeDialog" 
+        title="Add New Employee" 
+        contentWidth="500px"
+        resizable="true"
+        draggable="true"
+        afterClose=".onDialogClosed">
+        
+        <content>
+            <VBox class="sapUiMediumMargin">
+                
+                <!-- Name Fields -->
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="Name *" class="sapUiTinyMarginBottom"/>
+                    <Input 
+                        id="firstNameInput"
+                        value="{vacationModel>/newEmployee/firstName}"
+                        placeholder="Enter name"
+                        required="true"
+                        liveChange=".onNameChange"/>
+                </VBox>
+                
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="Surname" class="sapUiTinyMarginBottom"/>
+                    <Input 
+                        id="lastNameInput"
+                        value="{vacationModel>/newEmployee/lastName}"
+                        placeholder="Enter surname"
+                        required="false"
+                        liveChange=".onNameChange"/>
+                </VBox>
+                
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="Full Name Preview:" class="sapUiTinyMarginBottom"/>
+                    <Text 
+                        id="fullNamePreview"
+                        text="{vacationModel>/newEmployee/fullName}" 
+                        class="sapUiSmallMarginBottom"/>
+                </VBox>
+                
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="Email *" class="sapUiTinyMarginBottom"/>
+                    <Input 
+                        id="emailInput"
+                        value="{vacationModel>/newEmployee/email}"
+                        placeholder="Enter email address"
+                        type="Email"
+                        required="true"/>
+                </VBox>
+                
+                <VBox class="sapUiSmallMarginBottom">
+                    <CheckBox 
+                        id="adminCheckBox"
+                        text="Admin" 
+                        class="sapUiTinyMarginTop"/>
+                </VBox>
+                
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="Department *" class="sapUiTinyMarginBottom"/>
+                    <MultiComboBox 
+                        id="departmentComboBox"
+                        selectedKeys="{vacationModel>/selectedDepartmentIds}"
+                        items="{vacationModel>/allDepartments}"
+                        class="sapUiTinyMarginBottom"
+                        placeholder="Select departments..."
+                        selectionChange=".onDepartmentSelectionChange">
+                        <core:Item 
+                            key="{vacationModel>id}" 
+                            text="{vacationModel>department}"/>
+                    </MultiComboBox>
+                </VBox>
+                
+            </VBox>
+        </content>
+        
+        <buttons>
+            <Button 
+                text="Create Employee" 
+                type="Emphasized" 
+                press=".onCreateEmployee"/>
+            <Button 
+                text="Cancel" 
+                press=".onCancelCreateEmployee"/>
+        </buttons>
+        
+    </Dialog>
+
+</mvc:View>

@@ -24,7 +24,7 @@
                     class="sapUiTinyMarginEnd"/>
                 <ObjectStatus
                     id="_IDGenObjectStatus"
-                    text="{statsModel>/diasConsumir} days"
+                    text="{statsModel>/diasConsumir} {i18n>days}"
                     state="Information"/>
             </HBox>
             <HBox
@@ -32,11 +32,11 @@
                 class="sapUiTinyMarginTop">
                 <Label
                     id="_IDGenLabel1"
-                    text="Remaining days: "
+                    text="{i18n>remainingDays}"
                     class="sapUiTinyMarginEnd"/>
                 <ObjectStatus
                     id="_IDGenObjectStatus1"
-                    text="{statsModel>/diasRestantes} days"
+                    text="{statsModel>/diasRestantes} {i18n>days}"
                     state="{= ${statsModel>/diasRestantes} > 10 ? 'Success' : ${statsModel>/diasRestantes} > 5 ? 'Warning' : 'Error' }"/>
             </HBox>
             <HBox
@@ -48,7 +48,7 @@
                     class="sapUiTinyMarginEnd"/>
                 <Text
                     id="_IDGenText1"
-                    text="{statsModel>/diasMaximos} days"/>
+                    text="{statsModel>/diasMaximos} {i18n>days}"/>
             </HBox>
         </VBox>
         <Button

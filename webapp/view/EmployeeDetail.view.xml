@@ -11,7 +11,7 @@
     height="100%">
     <Page
         id="employeeDetailPage"
-        title="Calendar"
+        title="{i18n>appTitle}"
         showNavButton="true"
         navButtonPress=".onNavBack">
         <content>
@@ -22,7 +22,7 @@
                 class="customContainer">
                 <Text 
                     id="_IDGenText2" 
-                    text="{vacationModel>title} vacation details" 
+                    text="{i18n>DetailsTitle} {vacationModel>title}" 
                     class="customTitle"/>
             </VBox>
             <f:SimpleForm
@@ -34,50 +34,50 @@
                     <VBox
                         id="_IDGenVBox1"
                         class="sapUiMediumMarginBottom">
-                        <Image
-                            id="_IDGenImage"
+                        <Avatar
+                            id="_IDGenAvatar"
                             src="{vacationModel>icon}"
-                            width="15vw"
-                            height="auto"
-                            class="img--avatar"/>
+                            displaySize="M"
+                            fallbackIcon="sap-icon://person-placeholder"
+                            class="sapUiSmallMarginBottom"/>
                         <Title
                             id="_IDGenTitle2"
                             text="{vacationModel>title}"
                             class="customName -margin--bottom"/>
                         <Text
                             id="_IDGenText"
-                            text="{vacationModel>cargo}"/>
+                            text="{vacationModel>department}"/>
                     </VBox>
                     
                     <VBox id="_IDGenVBox7" >
                     <Text
                         id="_IDGenLabel4"
-                        text="Enjoyed Days:"
+                        text="{i18n>enjoyedDays}"
                         class="customText -margin--bottom"/>
                     <Text
                         id="_IDGenText3"
-                        text="{vacationModel>totalDias} days"
+                        text="{vacationModel>totalDias} {i18n>days}"
                         class="sapUiSmallMarginBottom"/>
                     <Text
                         id="_IDGenLabel6"
-                        text="Total days allowed:"
+                        text="{i18n>remainingDays}"
                         class="customText -margin--bottom"/>
                     <Text
                         id="_IDGenText4"
-                        text="{vacationModel>diasRestantes} days"/>
+                        text="{vacationModel>diasRestantes} {i18n>days}"/>
                     </VBox>
                     <List
                         id="_IDGenList"
                         items="{vacationModel>appointments}"
-                        noDataText="No vacation periods recorded">
+                        noDataText="{i18n>noDataText}">
                         <CustomListItem id="_IDGenCustomListItem1">
                             <VBox id="_IDGenVBox2">
-                                <Text text="Periods:" class="customText -margin--bottom"/>
-                                <Text id="_IDGenText7" text="Start: {path: 'vacationModel>startDate', 
+                                <Text text="{i18n>periods}" class="customText -margin--bottom"/>
+                                <Text id="_IDGenText7" text="{i18n>start} {path: 'vacationModel>startDate', 
                                 type: 'sap.ui.model.type.DateTime', 
                                 formatOptions: { pattern: 'dd/MM/yyyy' }}"
                                 class="-margin--bottom"/>
-                                <Text id="_IDGenText8" text="End: {path: 'vacationModel>endDate', 
+                                <Text id="_IDGenText8" text="{i18n>end} {path: 'vacationModel>endDate', 
                                 type: 'sap.ui.model.type.DateTime', 
                                 formatOptions: { pattern: 'dd/MM/yyyy' }}"
                                 class="-margin--bottom"/>
@@ -92,7 +92,7 @@
                         class="sapUiMediumMarginBottom">
                         <Title
                             id="statsTitle"
-                            text="Statistics:"
+                            text="{i18n>statsTitle}"
                             class= "customText -margin--bottom"/>
                         <VBox
                             id="statsBox"
@@ -103,17 +103,17 @@
                                 class="sapUiTinyMarginEnd">
                                 <ObjectStatus
                                     id="usedDaysStatus"
-                                    title="Enjoyed Days"
+                                    title="{i18n>enjoyedDays}"
                                     text="{statsModel>/diasConsumidos}"
                                     state="Warning"/>
                                 <ObjectStatus
                                     id="remainingDaysStatus"
-                                    title="Remaining Days"
+                                    title="{i18n>remainingDays}"
                                     text="{statsModel>/diasRestantes}"
                                     state="Success"/>
                                 <ObjectStatus
                                     id="maxDaysStatus"
-                                    title="Total Days Allowed"
+                                    title="{i18n>totalDays}"
                                     text="{statsModel>/diasMaximos}"
                                     state="Information"/>
                             </VBox>
