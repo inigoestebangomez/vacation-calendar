@@ -15,7 +15,7 @@
         <headerContent>
             <Button 
                 id="addEmployeeButton"
-                text="Add Employee"
+                text="{i18n>addEmployeeBtn}" 
                 icon="sap-icon://add"
                 press=".onAddEmployee">
             </Button>
@@ -51,16 +51,16 @@
 
                             <Panel id="_details" expandable="false" expanded="false" visible="false">
                                 <VBox class="sapUiSmallMarginTop">
-                                    <Text id="nameText" text="Name: {vacationModel>name}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="nameText" text="{i18n>nameRow} {vacationModel>name}" class="sapUiTinyMarginBottom"/>
                                     <Input id="nameEdit" value="{vacationModel>name}" visible="false" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="emailText" text="Email: {vacationModel>email}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="emailText" text="{i18n>emailRow} {vacationModel>email}" class="sapUiTinyMarginBottom"/>
                                     <Input id="emailEdit" value="{vacationModel>email}" visible="false" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="adminText" text="Admin: {= ${vacationModel>admin} === 1 ? 'Yes' : 'No'}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="adminText" text="{i18n>adminRow} {= ${vacationModel>admin} === 1 ? 'Yes' : 'No'}" class="sapUiTinyMarginBottom"/>
                                     <CheckBox id="adminEdit" selected="{= ${vacationModel>admin} === 1 }" visible="false" text="Admin" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="departmentsText" text="Departments: {path: 'vacationModel>departments', formatter: '.formatDepartmentName'}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="departmentsText" text="{i18n>departmentsRow} {path: 'vacationModel>departments', formatter: '.formatDepartmentName'}" class="sapUiTinyMarginBottom"/>
 
                                     <MultiComboBox id="departmentsEdit"
                                     selectedKeys="{vacationModel>selectedDepartmentIds}"
@@ -72,11 +72,11 @@
                                     </MultiComboBox>
 
                                     <FlexBox alignItems="End" justifyContent="End" class="sapUiSmallMargin">
-                                        <Button id="editBtn" text="Edit" press=".onEditEmployee" type="Attention"/>
-                                        <Button id="saveBtn" text="Save" press=".onSaveEmployee" type="Success" class="sapUiTinyMarginBegin" visible="false"/>
-                                        <Button id="deleteBtn" text="Delete" press=".onDeleteEmployee" type="Reject" class="sapUiTinyMarginBegin"/>
-                                        <Button id="closeBtn" text="Close" press=".onClosePanel" class="sapUiMediumMarginBegin"/>
-                                        <Button id="cancelBtn" text="Cancel" press=".onCancelEdit" type="Emphasized" class="sapUiMediumMarginBegin" visible="false"/>
+                                        <Button id="editBtn" text="{i18n>editBtn}" press=".onEditEmployee" type="Attention"/>
+                                        <Button id="saveBtn" text="{i18n>saveBtn}" press=".onSaveEmployee" type="Success" class="sapUiTinyMarginBegin" visible="false"/>
+                                        <Button id="deleteBtn" text="{i18n>deleteBtn}" press=".onDeleteEmployee" type="Reject" class="sapUiTinyMarginBegin"/>
+                                        <Button id="closeBtn" text="{i18n>closeBtn}" press=".onClosePanel" class="sapUiMediumMarginBegin"/>
+                                        <Button id="cancelBtn" text="{i18n>cancelBtn}" press=".onCancelEdit" type="Emphasized" class="sapUiMediumMarginBegin" visible="false"/>
                                     </FlexBox>
                                 </VBox>
                             </Panel>
@@ -89,7 +89,7 @@
 
     <Dialog 
         id="createEmployeeDialog" 
-        title="Add New Employee" 
+        title="{i18n>addEmployeeBtn}" 
         contentWidth="500px"
         resizable="true"
         draggable="true"
@@ -100,27 +100,27 @@
                 
                 <!-- Name Fields -->
                 <VBox class="sapUiSmallMarginBottom">
-                    <Label text="Name *" class="sapUiTinyMarginBottom"/>
+                    <Label text="{i18n>namePhd}" class="sapUiTinyMarginBottom"/>
                     <Input 
                         id="firstNameInput"
                         value="{vacationModel>/newEmployee/firstName}"
-                        placeholder="Enter name"
+                        placeholder="{i18n>namePlaceholder}"
                         required="true"
                         liveChange=".onNameChange"/>
                 </VBox>
                 
                 <VBox class="sapUiSmallMarginBottom">
-                    <Label text="Surname" class="sapUiTinyMarginBottom"/>
+                    <Label text="{i18n>lastNamePhd}" class="sapUiTinyMarginBottom"/>
                     <Input 
                         id="lastNameInput"
                         value="{vacationModel>/newEmployee/lastName}"
-                        placeholder="Enter surname"
+                        placeholder="{i18n>lastNamePlaceholder}"
                         required="false"
                         liveChange=".onNameChange"/>
                 </VBox>
                 
                 <VBox class="sapUiSmallMarginBottom">
-                    <Label text="Full Name Preview:" class="sapUiTinyMarginBottom"/>
+                    <Label text="{i18n>previewNamePhd}" class="sapUiTinyMarginBottom"/>
                     <Text 
                         id="fullNamePreview"
                         text="{vacationModel>/newEmployee/fullName}" 
@@ -128,11 +128,11 @@
                 </VBox>
                 
                 <VBox class="sapUiSmallMarginBottom">
-                    <Label text="Email *" class="sapUiTinyMarginBottom"/>
+                    <Label text="{i18n>emailPhd}" class="sapUiTinyMarginBottom"/>
                     <Input 
                         id="emailInput"
                         value="{vacationModel>/newEmployee/email}"
-                        placeholder="Enter email address"
+                        placeholder="{i18n>emailPlaceholder}"
                         type="Email"
                         required="true"/>
                 </VBox>
@@ -140,19 +140,19 @@
                 <VBox class="sapUiSmallMarginBottom">
                     <CheckBox 
                         id="adminCheckBox"
-                        text="Admin"
+                        text="{i18n>adminPhd}"
                         selected="{vacationModel>/newEmployee/admin}" 
                         class="sapUiTinyMarginTop"/>
                 </VBox>
                 
                 <VBox class="sapUiSmallMarginBottom">
-                    <Label text="Department *" class="sapUiTinyMarginBottom"/>
+                    <Label text="{i18n>departmentPhd}" class="sapUiTinyMarginBottom"/>
                     <MultiComboBox 
                         id="departmentComboBox"
                         selectedKeys="{vacationModel>/newEmployee/departments}"
                         items="{vacationModel>/allDepartments}"
                         class="sapUiTinyMarginBottom"
-                        placeholder="Select departments..."
+                        placeholder="{i18n>selectDepartmentPlaceholder}"
                         selectionChange=".onDepartmentSelectionChange">
                         <core:Item 
                             key="{vacationModel>id}" 
@@ -165,11 +165,11 @@
         
         <buttons>
             <Button 
-                text="Create Employee" 
+                text="{i18n>createBtn}" 
                 type="Emphasized" 
                 press=".onCreateEmployee"/>
             <Button 
-                text="Cancel" 
+                text="{i18n>cancelBtn}" 
                 press=".onCancelCreateEmployee"/>
         </buttons>
         
