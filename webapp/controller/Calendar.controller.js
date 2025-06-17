@@ -53,43 +53,39 @@ sap.ui.define([
     return Controller.extend("vacation.caledar.vacationcalendar.controller.Calendar", {
 
         onInit: async function () {
+            let oModel = new JSONModel(); 
+            this.getView().setModel(oModel, "vacationModel");
+
             try {
                 const response = await fetch("http://localhost:3000/api/config");
                 if (!response.ok) {
                     throw new Error(`Error fetching configuration: ${response.status}`);
                 }
-        
+
                 this.appConfig = await response.json();
-        
+                
                 const urlParams = new URLSearchParams(window.location.search);
                 const authCode = urlParams.get("code");
-                // console.log("onInit: Código de autorización en URL:", authCode);
-        
-                let oModel = new JSONModel();
-                this.getView().setModel(oModel, "vacationModel");
-        
+
                 if (authCode) {
-                    // console.log("onInit: Se encontró un código de autorización, procesando...");
                     await this.handleAuthCode(authCode);
                     await this.loadVacationData();
                 } else {
-                    // console.log("onInit: No hay código de autorización, cargando directamente...");
                     await this.loadVacationData();
                 }
 
                 await this.onFetchDepartments();
-        
+
             } catch (err) {
-                // console.error("Error en onInit:", err);
                 sap.m.MessageToast.show("Error initializing the app");
+                return; 
             }
 
+            // Configuración del modelo de vacaciones
             oModel.attachRequestCompleted(function () {
                 let oData = oModel.getData();
-                // console.log("Datos cargados en el modelo:", oData);
 
                 oData.rows.forEach(function (oEmployee) {
-                    
                     let iTotalDias = 0;
                     let iDisponibles = 25;
 
@@ -100,13 +96,12 @@ sap.ui.define([
                             let iDias = Math.ceil((oFin - oInicio) / (1000 * 60 * 60 * 24)) + 1;
                             iTotalDias += iDias;
                         });
-                    };
+                    }
 
                     oEmployee.totalDias = iTotalDias;
                     oEmployee.diasRestantes = iDisponibles - iTotalDias;
-
-                    // console.log(`Empleado ${oEmployee.title}, Total: ${oEmployee.totalDias}, Restantes: ${oEmployee.diasRestantes}`);
                 });
+
                 oModel.setData(oData);
             });
 

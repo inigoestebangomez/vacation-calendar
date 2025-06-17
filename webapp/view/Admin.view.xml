@@ -73,10 +73,10 @@
 
                                     <FlexBox alignItems="End" justifyContent="End" class="sapUiSmallMargin">
                                         <Button id="editBtn" text="Edit" press=".onEditEmployee" type="Attention"/>
-                                        <Button id="saveBtn" text="Save" press=".onSaveEmployee" visible="false" type="Success" class="sapUiTinyMarginBegin"/>
-                                        <Button id="cancelBtn" text="Cancel" press=".onCancelEdit" visible="false" type="Emphasized" class="sapUiTinyMarginBegin"/>
+                                        <Button id="saveBtn" text="Save" press=".onSaveEmployee" type="Success" class="sapUiTinyMarginBegin" visible="false"/>
                                         <Button id="deleteBtn" text="Delete" press=".onDeleteEmployee" type="Reject" class="sapUiTinyMarginBegin"/>
                                         <Button id="closeBtn" text="Close" press=".onClosePanel" class="sapUiMediumMarginBegin"/>
+                                        <Button id="cancelBtn" text="Cancel" press=".onCancelEdit" type="Emphasized" class="sapUiMediumMarginBegin" visible="false"/>
                                     </FlexBox>
                                 </VBox>
                             </Panel>
@@ -140,7 +140,8 @@
                 <VBox class="sapUiSmallMarginBottom">
                     <CheckBox 
                         id="adminCheckBox"
-                        text="Admin" 
+                        text="Admin"
+                        selected="{vacationModel>/newEmployee/admin}" 
                         class="sapUiTinyMarginTop"/>
                 </VBox>
                 
@@ -148,7 +149,7 @@
                     <Label text="Department *" class="sapUiTinyMarginBottom"/>
                     <MultiComboBox 
                         id="departmentComboBox"
-                        selectedKeys="{vacationModel>/selectedDepartmentIds}"
+                        selectedKeys="{vacationModel>/newEmployee/departments}"
                         items="{vacationModel>/allDepartments}"
                         class="sapUiTinyMarginBottom"
                         placeholder="Select departments..."
