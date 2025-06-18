@@ -15,7 +15,7 @@
         <headerContent>
             <Button 
                 id="addEmployeeButton"
-                text="{i18n>addEmployeeBtn}" 
+                text="{i18n>addEmployeeBtn}"
                 icon="sap-icon://add"
                 press=".onAddEmployee">
             </Button>
@@ -51,16 +51,16 @@
 
                             <Panel id="_details" expandable="false" expanded="false" visible="false">
                                 <VBox class="sapUiSmallMarginTop">
-                                    <Text id="nameText" text="{i18n>nameRow} {vacationModel>name}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="nameText" text="Name: {vacationModel>name}" class="sapUiTinyMarginBottom"/>
                                     <Input id="nameEdit" value="{vacationModel>name}" visible="false" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="emailText" text="{i18n>emailRow} {vacationModel>email}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="emailText" text="Email: {vacationModel>email}" class="sapUiTinyMarginBottom"/>
                                     <Input id="emailEdit" value="{vacationModel>email}" visible="false" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="adminText" text="{i18n>adminRow} {= ${vacationModel>admin} === 1 ? 'Yes' : 'No'}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="adminText" text="Admin: {= ${vacationModel>admin} === 1 ? 'Yes' : 'No'}" class="sapUiTinyMarginBottom"/>
                                     <CheckBox id="adminEdit" selected="{= ${vacationModel>admin} === 1 }" visible="false" text="Admin" class="sapUiTinyMarginBottom"/>
 
-                                    <Text id="departmentsText" text="{i18n>departmentsRow} {path: 'vacationModel>departments', formatter: '.formatDepartmentName'}" class="sapUiTinyMarginBottom"/>
+                                    <Text id="departmentsText" text="Departments: {path: 'vacationModel>departments', formatter: '.formatDepartmentName'}" class="sapUiTinyMarginBottom"/>
 
                                     <MultiComboBox id="departmentsEdit"
                                     selectedKeys="{vacationModel>selectedDepartmentIds}"
@@ -169,7 +169,7 @@
                 type="Emphasized" 
                 press=".onCreateEmployee"/>
             <Button 
-                text="{i18n>cancelBtn}" 
+                text="{i18n>cancelBtn}"
                 press=".onCancelCreateEmployee"/>
         </buttons>
         

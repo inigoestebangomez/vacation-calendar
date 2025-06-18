@@ -9,17 +9,17 @@ sap.ui.define([
     "use strict";
     
     return Controller.extend(
-        "vacation.caledar.vacationcalendar.controller.Admin",
-        {
-          onInit: function () {
-            let oRouter = sap.ui.core.UIComponent.getRouterFor(this);
-            oRouter
-              .getRoute("admin")
-              .attachPatternMatched(this._onRouteMatched, this);
-      
-            this.onLoadEmployeeData();
-            this.onFetchDepartments();
-          },
+      "vacation.caledar.vacationcalendar.controller.Admin",
+      {
+        onInit: function () {
+          let oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+          oRouter
+            .getRoute("admin")
+            .attachPatternMatched(this._onRouteMatched, this);
+
+          this.onLoadEmployeeData();
+          this.onFetchDepartments();
+        },
 
         getRouter: function () {
           return UIComponent.getRouterFor(this);
@@ -70,7 +70,8 @@ sap.ui.define([
                   .getItems()
                   .find(
                     (btn) =>
-                      btn.isA("sap.m.Button") && btn.getText() === "Close"
+                      btn.isA("sap.m.Button") &&
+                      btn.getId().includes("closeBtn")
                   );
 
                 if (oCloseBtn) {
@@ -85,157 +86,206 @@ sap.ui.define([
         },
 
         onEditEmployee: function (oEvent) {
-            const oButton = oEvent.getSource();
-            const oFlexBox = oButton.getParent(); 
-            const oVBox = oFlexBox.getParent(); 
-            const oPanel = oVBox.getParent();
+          const oButton = oEvent.getSource();
+          const oFlexBox = oButton.getParent();
+          const oVBox = oFlexBox.getParent();
+          const oPanel = oVBox.getParent();
 
-            const oAdminText = oVBox.getItems().find((c) => c.getId().includes("adminText"));
-            const oAdminEdit = oVBox.getItems().find((c) => c.getId().includes("adminEdit"));
-            const oDepartmentsText = oVBox.getItems().find((c) => c instanceof sap.m.Text && c.getText().startsWith("Departments:"));
-            const oDepartmentsEdit = oVBox.getItems().find((c) => c.getId().includes("departmentsEdit"));
-            const oCancelBtn = oFlexBox.getItems().find((c) => c.getId().includes("cancelBtn"));
-            const oCloseBtn = oFlexBox.getItems().find((c) => c.getId().includes("closeBtn"));
+          const oAdminText = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("adminText"));
+          const oAdminEdit = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("adminEdit"));
+          const oDepartmentsText = oVBox
+            .getItems()
+            .find(
+              (c) =>
+                c instanceof sap.m.Text &&
+                c.getText().startsWith("Departments:")
+            );
+          const oDepartmentsEdit = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("departmentsEdit"));
+          const oCancelBtn = oFlexBox
+            .getItems()
+            .find((c) => c.getId().includes("cancelBtn"));
+          const oCloseBtn = oFlexBox
+            .getItems()
+            .find((c) => c.getId().includes("closeBtn"));
 
-            const bIsEdit = oAdminEdit.getVisible(); 
-            const oCtx = oPanel.getBindingContext("vacationModel");
-            const oData = oCtx.getObject();
-            const oModel = this.getView().getModel("vacationModel");
+          const bIsEdit = oAdminEdit.getVisible();
+          const oCtx = oPanel.getBindingContext("vacationModel");
+          const oData = oCtx.getObject();
+          const oModel = this.getView().getModel("vacationModel");
 
-            if (!bIsEdit) {
-                // Guardar copia de los datos originales para cancelar
-                oModel.setProperty(oCtx.getPath() + "/_original", {
-                    admin: oData.admin,
-                    departments: Array.isArray(oData.departments) ? [...oData.departments] : []
-                });
+          if (!bIsEdit) {
+            // Guardar copia de los datos originales para cancelar
+            oModel.setProperty(oCtx.getPath() + "/_original", {
+              admin: oData.admin,
+              departments: Array.isArray(oData.departments)
+                ? [...oData.departments]
+                : [],
+            });
 
-                oAdminText.setVisible(false);
-                oDepartmentsText.setVisible(false);
-                oAdminEdit.setVisible(true);
-                oDepartmentsEdit.setVisible(true);
-                oButton.setText("Save");
-                if (oCancelBtn) oCancelBtn.setVisible(true);
-                if (oCloseBtn) oCloseBtn.setVisible(false); // OCULTAR CLOSE
+            oAdminText.setVisible(false);
+            oDepartmentsText.setVisible(false);
+            oAdminEdit.setVisible(true);
+            oDepartmentsEdit.setVisible(true);
+            oButton.setText("Save");
+            if (oCancelBtn) oCancelBtn.setVisible(true);
+            if (oCloseBtn) oCloseBtn.setVisible(false);
 
-                // Convertir nombres actuales a IDs
-                const aAllDepartments = oModel.getProperty("/allDepartments") || [];
-                const selectedIds = (oData.departments || []).map(depName => {
-                    const match = aAllDepartments.find(d => d.department === depName);
-                    return match ? match.id.toString() : null;
-                }).filter(id => id !== null);
+            // Convertir nombres actuales a IDs
+            const aAllDepartments = oModel.getProperty("/allDepartments") || [];
+            const selectedIds = (oData.departments || [])
+              .map((depName) => {
+                const match = aAllDepartments.find(
+                  (d) => d.department === depName
+                );
+                return match ? match.id.toString() : null;
+              })
+              .filter((id) => id !== null);
 
-                oModel.setProperty(oCtx.getPath() + "/selectedDepartmentIds", selectedIds);
-                oDepartmentsEdit.setSelectedKeys(selectedIds);
+            oModel.setProperty(
+              oCtx.getPath() + "/selectedDepartmentIds",
+              selectedIds
+            );
+            oDepartmentsEdit.setSelectedKeys(selectedIds);
+          } else {
+            const bAdmin = oAdminEdit.getSelected() ? 1 : 0;
+            const selectedIds = oDepartmentsEdit.getSelectedKeys();
 
-            } else {
-                const bAdmin = oAdminEdit.getSelected() ? 1 : 0;
-                const selectedIds = oDepartmentsEdit.getSelectedKeys(); 
+            const aAllDepartments = oModel.getProperty("/allDepartments") || [];
+            const selectedNames = selectedIds
+              .map((id) => {
+                const match = aAllDepartments.find(
+                  (d) => d.id.toString() === id
+                );
+                return match ? match.department : null;
+              })
+              .filter((name) => name !== null);
 
-                const aAllDepartments = oModel.getProperty("/allDepartments") || [];
-                const selectedNames = selectedIds.map(id => {
-                    const match = aAllDepartments.find(d => d.id.toString() === id);
-                    return match ? match.department : null;
-                }).filter(name => name !== null);
+            oData.admin = bAdmin;
+            oData.departments = selectedNames;
 
-                oData.admin = bAdmin;
-                oData.departments = selectedNames;
+            fetch(`http://localhost:3000/employees/${oData.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(oData),
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Error en la respuesta del servidor");
+                }
+                return response.json();
+              })
+              .then(() => {
+                MessageToast.show("Cambios guardados");
 
-                fetch(`http://localhost:3000/employees/${oData.id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(oData)
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Error en la respuesta del servidor");
-                    }
-                    return response.json();
-                })
-                .then(() => {
-                    MessageToast.show("Cambios guardados");
+                oModel.updateBindings();
 
-                    oModel.updateBindings();
-
-                    // Salir de edición
-                    oAdminText.setVisible(true);
-                    oDepartmentsText.setVisible(true);
-                    oAdminEdit.setVisible(false);
-                    oDepartmentsEdit.setVisible(false);
-                    oButton.setText("Edit");
-                    if (oCancelBtn) oCancelBtn.setVisible(false);
-                    if (oCloseBtn) oCloseBtn.setVisible(true);
-                })
-                .catch(error => {
-                    console.error("Error al guardar:", error);
-                    MessageToast.show("Error al guardar cambios");
-                });
-            }
+                // Salir de edición
+                oAdminText.setVisible(true);
+                oDepartmentsText.setVisible(true);
+                oAdminEdit.setVisible(false);
+                oDepartmentsEdit.setVisible(false);
+                oButton.setText("Edit");
+                if (oCancelBtn) oCancelBtn.setVisible(false);
+                if (oCloseBtn) oCloseBtn.setVisible(true);
+              })
+              .catch((error) => {
+                console.error("Error al guardar:", error);
+                MessageToast.show("Error al guardar cambios");
+              });
+          }
         },
 
         onCancelEdit: function (oEvent) {
-            const oButton = oEvent.getSource();
-            const oFlexBox = oButton.getParent();
-            const oVBox = oFlexBox.getParent();
-            const oPanel = oVBox.getParent();
+          const oButton = oEvent.getSource();
+          const oFlexBox = oButton.getParent();
+          const oVBox = oFlexBox.getParent();
+          const oPanel = oVBox.getParent();
 
-            const oAdminText = oVBox.getItems().find((c) => c.getId().includes("adminText"));
-            const oAdminEdit = oVBox.getItems().find((c) => c.getId().includes("adminEdit"));
-            const oDepartmentsText = oVBox.getItems().find((c) => c instanceof sap.m.Text && c.getText().startsWith("Departments:"));
-            const oDepartmentsEdit = oVBox.getItems().find((c) => c.getId().includes("departmentsEdit"));
-            const oEditBtn = oFlexBox.getItems().find((c) => c.getId().includes("editBtn"));
-            const oCancelBtn = oFlexBox.getItems().find((c) => c.getId().includes("cancelBtn"));
-            const oCloseBtn = oFlexBox.getItems().find((c) => c.getId().includes("closeBtn"));
+          const oAdminText = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("adminText"));
+          const oAdminEdit = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("adminEdit"));
+          const oDepartmentsText = oVBox
+            .getItems()
+            .find(
+              (c) =>
+                c instanceof sap.m.Text &&
+                c.getText().startsWith("Departments:")
+            );
+          const oDepartmentsEdit = oVBox
+            .getItems()
+            .find((c) => c.getId().includes("departmentsEdit"));
+          const oEditBtn = oFlexBox
+            .getItems()
+            .find((c) => c.getId().includes("editBtn"));
+          const oCancelBtn = oFlexBox
+            .getItems()
+            .find((c) => c.getId().includes("cancelBtn"));
+          const oCloseBtn = oFlexBox
+            .getItems()
+            .find((c) => c.getId().includes("closeBtn"));
 
-            const oCtx = oPanel.getBindingContext("vacationModel");
-            const oModel = this.getView().getModel("vacationModel");
-            const oOriginal = oModel.getProperty(oCtx.getPath() + "/_original");
+          const oCtx = oPanel.getBindingContext("vacationModel");
+          const oModel = this.getView().getModel("vacationModel");
+          const oOriginal = oModel.getProperty(oCtx.getPath() + "/_original");
 
-            if (oOriginal) {
-                // Restaurar los valores originales
-                oModel.setProperty(oCtx.getPath() + "/admin", oOriginal.admin);
-                oModel.setProperty(oCtx.getPath() + "/departments", oOriginal.departments);
-                oModel.setProperty(oCtx.getPath() + "/selectedDepartmentIds", []);
-                oModel.setProperty(oCtx.getPath() + "/_original", undefined);
-            }
+          if (oOriginal) {
+            // Restaurar los valores originales
+            oModel.setProperty(oCtx.getPath() + "/admin", oOriginal.admin);
+            oModel.setProperty(
+              oCtx.getPath() + "/departments",
+              oOriginal.departments
+            );
+            oModel.setProperty(oCtx.getPath() + "/selectedDepartmentIds", []);
+            oModel.setProperty(oCtx.getPath() + "/_original", undefined);
+          }
 
-            oAdminText.setVisible(true);
-            oDepartmentsText.setVisible(true);
-            oAdminEdit.setVisible(false);
-            oDepartmentsEdit.setVisible(false);
-            if (oEditBtn) oEditBtn.setText("Edit");
-            if (oCancelBtn) oCancelBtn.setVisible(false);
-            if (oCloseBtn) oCloseBtn.setVisible(true); // MOSTRAR CLOSE
+          oAdminText.setVisible(true);
+          oDepartmentsText.setVisible(true);
+          oAdminEdit.setVisible(false);
+          oDepartmentsEdit.setVisible(false);
+          if (oEditBtn) oEditBtn.setText("Edit");
+          if (oCancelBtn) oCancelBtn.setVisible(false);
+          if (oCloseBtn) oCloseBtn.setVisible(true); // MOSTRAR CLOSE
         },
 
         onFetchDepartments: async function () {
-            try {
-                const response = await fetch("http://localhost:3000/departments");
-                if (!response.ok) {
-                    throw new Error(`Error fetching departments: ${response.status}`);
-                }
-                const aDepartments = await response.json();
-
-                const oModel = this.getView().getModel("vacationModel");
-                if (!oModel) {
-                    console.warn("vacationModel no está listo");
-                    return;
-                }
-
-                const oData = oModel.getData() || {};
-                oData.allDepartments = aDepartments;
-                oModel.setData(oData);
-            } catch (error) {
-                console.error("Error cargando departamentos:", error);
-                sap.m.MessageToast.show("Error al cargar departamentos");
+          try {
+            const response = await fetch("http://localhost:3000/departments");
+            if (!response.ok) {
+              throw new Error(`Error fetching departments: ${response.status}`);
             }
+            const aDepartments = await response.json();
+
+            const oModel = this.getView().getModel("vacationModel");
+            if (!oModel) {
+              console.warn("vacationModel no está listo");
+              return;
+            }
+
+            const oData = oModel.getData() || {};
+            oData.allDepartments = aDepartments;
+            oModel.setData(oData);
+          } catch (error) {
+            console.error("Error cargando departamentos:", error);
+            sap.m.MessageToast.show("Error al cargar departamentos");
+          }
         },
 
         onAddEmployee: function () {
-            this._clearDialogFields();
-            this.onFetchDepartments();
-            this.byId("createEmployeeDialog").open();
+          this._clearDialogFields();
+          this.onFetchDepartments();
+          this.byId("createEmployeeDialog").open();
         },
 
         _clearDialogFields: function () {
@@ -247,7 +297,7 @@ sap.ui.define([
               email: "",
               admin: false,
               departments: [],
-              selectedDepartmentIds: []
+              selectedDepartmentIds: [],
             });
           }
         },
@@ -278,52 +328,57 @@ sap.ui.define([
         },
 
         onCreateEmployee: async function () {
-            const oModel = this.getView().getModel("vacationModel");
-            const oNewEmployee = oModel.getProperty("/newEmployee");
+          const oModel = this.getView().getModel("vacationModel");
+          const oNewEmployee = oModel.getProperty("/newEmployee");
 
-            console.log("Full newEmployee object:", oNewEmployee);
+          console.log("Full newEmployee object:", oNewEmployee);
 
-            oNewEmployee.name = `${oNewEmployee.firstName} ${oNewEmployee.lastName || ""}`.trim();
+          oNewEmployee.name = `${oNewEmployee.firstName} ${
+            oNewEmployee.lastName || ""
+          }`.trim();
 
-            if (!oNewEmployee.name || !oNewEmployee.email) {
-              MessageToast.show("Name and Email are required");
-              return;
+          if (!oNewEmployee.name || !oNewEmployee.email) {
+            MessageToast.show("Name and Email are required");
+            return;
+          }
+
+          const selectedDepartments = oNewEmployee.departments || [];
+
+          const employeeData = {
+            email: oNewEmployee.email,
+            name: oNewEmployee.name,
+            admin: oNewEmployee.admin ? 1 : 0,
+            departments: selectedDepartments,
+          };
+
+          console.log(
+            "Data being sent to server:",
+            JSON.stringify(employeeData, null, 2)
+          );
+
+          try {
+            const response = await fetch("http://localhost:3000/employees", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(employeeData),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Error creating employee: ${response.status}`);
             }
 
-            const selectedDepartments = oNewEmployee.departments || [];
+            const result = await response.json();
+            console.log("New employee created:", result);
 
-            const employeeData = {
-              email: oNewEmployee.email,
-              name: oNewEmployee.name,
-              admin: oNewEmployee.admin ? 1 : 0,
-              departments: selectedDepartments
-            };
-
-            console.log("Data being sent to server:", JSON.stringify(employeeData, null, 2));
-
-            try {
-              const response = await fetch("http://localhost:3000/employees", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(employeeData)
-              });
-
-              if (!response.ok) {
-                throw new Error(`Error creating employee: ${response.status}`);
-              }
-
-              const result = await response.json();
-              console.log("New employee created:", result);
-
-              this._refreshEmployeeList();
-              this.onCancelCreateEmployee();
-              MessageToast.show("Employee created successfully");
-            } catch (error) {
-              console.error("Error creating employee:", error);
-              MessageToast.show("Error creating employee");
-            } 
+            this._refreshEmployeeList();
+            this.onCancelCreateEmployee();
+            MessageToast.show("Employee created successfully");
+          } catch (error) {
+            console.error("Error creating employee:", error);
+            MessageToast.show("Error creating employee");
+          }
         },
 
         onCancelCreateEmployee: function () {
@@ -351,12 +406,17 @@ sap.ui.define([
               onClose: async (oAction) => {
                 if (oAction === MessageBox.Action.OK) {
                   try {
-                    const response = await fetch(`http://localhost:3000/employees/${oData.id}`, {
-                      method: "DELETE"
-                    });
+                    const response = await fetch(
+                      `http://localhost:3000/employees/${oData.id}`,
+                      {
+                        method: "DELETE",
+                      }
+                    );
 
                     if (!response.ok) {
-                      throw new Error(`Error deleting employee: ${response.status}`);
+                      throw new Error(
+                        `Error deleting employee: ${response.status}`
+                      );
                     }
 
                     this._refreshEmployeeList();
@@ -366,7 +426,7 @@ sap.ui.define([
                     MessageToast.show("Error deleting employee");
                   }
                 }
-              }
+              },
             }
           );
         },
