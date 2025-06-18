@@ -55,7 +55,6 @@ sap.ui.define([
         onInit: async function () {
             let oModel = new JSONModel(); 
             this.getView().setModel(oModel, "vacationModel");
-
             try {
                 const response = await fetch("http://localhost:3000/api/config");
                 if (!response.ok) {
@@ -253,18 +252,13 @@ sap.ui.define([
         },
 
         handleAuthCode: async function(authCode) {
-            // console.log("handleAuthCode: Procesando código de autorización", authCode);
-    
             // Intercambiar el código por un token
             const success = await this.exchangeAuthCodeForToken(authCode);
-            // console.log("handleAuthCode: Resultado del intercambio:", success ? "Éxito" : "Fallo");
             
             if (success) {
-                // Cargar datos con el token recién obtenido
                 this.loadVacationData();
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else {
-                // console.error("handleAuthCode: No se pudo obtener el token");
                 MessageToast.show(this._getText("errorObtainingAuthToken"));
             }
         },
@@ -593,7 +587,19 @@ sap.ui.define([
             oRouter.navTo("admin", {
                 employeeId: "new"
             });
-        }
+        },
+
+        onGoToAdmin: async function () {
+            const oRouter = this.getOwnerComponent().getRouter();
+            const oAdminController = this; // o usa this si ya estás en Admin.controller.js
+
+            const isAdmin = await oAdminController.isCurrentUserAdmin();
+            if (isAdmin) {
+                oRouter.navTo("admin");
+            } else {
+                sap.m.MessageToast.show("No tienes permisos de administrador.");
+            }
+        },
 
     });
 });

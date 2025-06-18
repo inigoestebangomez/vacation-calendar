@@ -37,7 +37,6 @@ sap.ui.define([
             const response = await fetch("http://localhost:3000/employees");
             if (!response.ok)
               throw new Error`Error fetching employees: ${response.status}`();
-            console.log("Response from server:", response);
             const data = await response.json();
             console.log("Data fetched from server:", data);
 
@@ -430,6 +429,20 @@ sap.ui.define([
             }
           );
         },
+
+        isCurrentUserAdmin: async function () {
+            const oModel = this.getView().getModel("vacationModel");
+            const email = oModel.getProperty("/currentUser/email");
+            if (!email) return false;
+            try {
+                const response = await fetch(`http://localhost:3000/api/isAdmin?email=${encodeURIComponent(email)}`);
+                if (!response.ok) return false;
+                const data = await response.json();
+                return !!data.isAdmin;
+            } catch (e) {
+                return false;
+            }
+        }, 
 
         onNavBack: function () {
           let oHistory = History.getInstance();
