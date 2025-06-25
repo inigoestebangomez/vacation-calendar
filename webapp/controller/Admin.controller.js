@@ -12,13 +12,79 @@ sap.ui.define([
       "vacation.caledar.vacationcalendar.controller.Admin",
       {
         onInit: function () {
-          let oRouter = sap.ui.core.UIComponent.getRouterFor(this);
-          oRouter
-            .getRoute("admin")
-            .attachPatternMatched(this._onRouteMatched, this);
+            let oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+            oRouter
+                .getRoute("admin")
+                .attachPatternMatched(this._onRouteMatched, this);
 
-          this.onLoadEmployeeData();
-          this.onFetchDepartments();
+            // Verificar permisos de administrador antes de cargar datos
+            this.checkAdminPermissions()
+                .then((hasPermission) => {
+                    if (hasPermission) {
+                        this.onLoadEmployeeData();
+                        this.onFetchDepartments();
+                    } else {
+                        // Redirigir de vuelta al calendario si no tiene permisos
+                        MessageToast.show("Access denied: Administrator permissions required");
+                        this.onNavBack();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error checking permissions:", error);
+                    MessageToast.show("Error verifying permissions");
+                    this.onNavBack();
+                });
+        },
+
+        checkAdminPermissions: async function() {
+            try {
+                // Primero obtener el token
+                const token = sessionStorage.getItem("access_token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                // Obtener información del usuario actual
+                const userResponse = await fetch("http://localhost:3000/user/profile", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error("Failed to get user information");
+                }
+
+                const userData = await userResponse.json();
+                const userEmail = userData.userPrincipalName || userData.mail;
+
+                if (!userEmail) {
+                    throw new Error("User email not found");
+                }
+
+                // Verificar si es administrador
+                const adminResponse = await fetch(`http://localhost:3000/api/isAdmin?email=${encodeURIComponent(userEmail)}`);
+                
+                if (!adminResponse.ok) {
+                    throw new Error("Failed to check admin status");
+                }
+
+                const adminData = await adminResponse.json();
+                return adminData.isAdmin;
+
+            } catch (error) {
+                console.error("Error checking admin permissions:", error);
+                return false;
+            }
+        },
+
+        _onRouteMatched: function() {
+            // Verificar permisos cada vez que se accede a la vista
+            this.checkAdminPermissions()
+                .then((hasPermission) => {
+                    if (!hasPermission) {
+                        MessageToast.show("Access denied: Administrator permissions required");
+                        this.onNavBack();
+                    }
+                });
         },
 
         getRouter: function () {

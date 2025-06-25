@@ -74,6 +74,7 @@ sap.ui.define([
                 }
 
                 await this.onFetchDepartments();
+                await this.loadCurrentUserInfo();
 
             } catch (err) {
                 sap.m.MessageToast.show("Error initializing the app");
@@ -112,6 +113,125 @@ sap.ui.define([
         _getText: function (sKey, aArgs) {
             const oBundle = this.getView().getModel("i18n").getResourceBundle();
             return oBundle.getText(sKey, aArgs);
+        },
+
+        loadCurrentUserInfo: async function() {
+            try {
+                const token = await this.getAppToken();
+                if (!token) return;
+
+                // Obtener información del usuario actual desde Microsoft Graph
+                const response = await fetch("http://localhost:3000/user/profile", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    const oModel = this.getView().getModel("vacationModel");
+                    const oData = oModel.getData() || {};
+                    
+                    // PRIORIZAR userPrincipalName sobre mail (coincide con BD)
+                    const userEmail = userData.userPrincipalName || userData.mail;
+                    
+                    // console.log('userData.mail:', userData.mail);
+                    // console.log('userData.userPrincipalName:', userData.userPrincipalName);
+                    // console.log('Email usado para verificar admin (userPrincipalName):', userEmail);
+                    
+                    oData.currentUser = {
+                        email: userEmail,
+                        name: userData.displayName,
+                        id: userData.id,
+                        isAdmin: false // Se actualizará después
+                    };
+                    
+                    oModel.setData(oData);
+                    
+                    // Verificar si es admin usando el email correcto
+                    await this.checkAdminStatus(userEmail);
+                }
+            } catch (error) {
+                console.error("Error loading current user info:", error);
+                MessageToast.show("Error loading user information");
+            }
+        },
+
+        checkAdminStatus: async function(email) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/isAdmin?email=${encodeURIComponent(email)}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const oModel = this.getView().getModel("vacationModel");
+                    const oData = oModel.getData() || {};
+                    
+                    if (!oData.currentUser) oData.currentUser = {};
+                    oData.currentUser.isAdmin = data.isAdmin;
+                    
+                    oModel.setData(oData);
+                    
+                    this.toggleAdminButton(data.isAdmin);
+                    
+                    console.log(`User ${email} is admin:`, data.isAdmin);
+                }
+            } catch (error) {
+                console.error("Error checking admin status:", error);
+                // Por seguridad, ocultar el botón si hay error
+                this.toggleAdminButton(false);
+            }
+        },
+
+        onGoToAdmin: async function () {
+            try {
+                const token = sessionStorage.getItem("access_token");
+                if (!token) {
+                    MessageToast.show("Authentication required");
+                    return;
+                }
+
+                const userResponse = await fetch("http://localhost:3000/user/profile", {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!userResponse.ok) {
+                    MessageToast.show("Error getting user information");
+                    return;
+                }
+
+                const userData = await userResponse.json();
+                const userEmail = userData.userPrincipalName || userData.mail;
+
+                if (!userEmail) {
+                    MessageToast.show("User email not found");
+                    return;
+                }
+
+                // Verificar permisos de administrador
+                const adminResponse = await fetch(`http://localhost:3000/api/isAdmin?email=${encodeURIComponent(userEmail)}`);
+                
+                if (!adminResponse.ok) {
+                    MessageToast.show("Error verifying permissions");
+                    return;
+                }
+
+                const adminData = await adminResponse.json();
+
+                if (adminData.isAdmin) {
+                    const oRouter = this.getOwnerComponent().getRouter();
+                    oRouter.navTo("admin");
+                } else {
+                    MessageToast.show("Access denied: Administrator permissions required");
+                }
+
+            } catch (error) {
+                console.error("Error accessing admin panel:", error);
+                MessageToast.show("Error accessing admin panel");
+            }
+        },
+
+        toggleAdminButton: function(isAdmin) {
+            const oAdminButton = this.byId("adminButton"); 
+            if (oAdminButton) {
+                oAdminButton.setVisible(isAdmin);
+            }
         },
 
         onGlobalSearch: function (oEvent) {
@@ -589,17 +709,22 @@ sap.ui.define([
             });
         },
 
-        onGoToAdmin: async function () {
-            const oRouter = this.getOwnerComponent().getRouter();
-            const oAdminController = this; // o usa this si ya estás en Admin.controller.js
+        // onGoToAdmin: function() {
+        //     const oModel = this.getView().getModel("vacationModel");
+        //     const currentUser = oModel.getProperty("/currentUser");
+            
+        //     if (!currentUser) {
+        //         MessageToast.show("User information not loaded");
+        //         return;
+        //     }
 
-            const isAdmin = await oAdminController.isCurrentUserAdmin();
-            if (isAdmin) {
-                oRouter.navTo("admin");
-            } else {
-                sap.m.MessageToast.show("No tienes permisos de administrador.");
-            }
-        },
+        //     if (currentUser.isAdmin) {
+        //         const oRouter = this.getOwnerComponent().getRouter();
+        //         oRouter.navTo("admin");
+        //     } else {
+        //         MessageToast.show("You don't have administrator permissions");
+        //     }
+        // }
 
     });
 });
