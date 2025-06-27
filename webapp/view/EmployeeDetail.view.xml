@@ -8,21 +8,22 @@
     xmlns:f="sap.ui.layout.form"
     xmlns:layout="sap.ui.layout"
     xmlns:type="sap.ui.model.type"
-    height="100%">
+    height="100%"
+>
     <Page
         id="employeeDetailPage"
         title="{i18n>appTitle}"
         showNavButton="true"
         navButtonPress=".onNavBack">
         <content>
-            <VBox 
+            <VBox
                 id="_IDGenVBox3"
-                justifyContent="Center" 
+                justifyContent="Center"
                 alignItems="Center"
                 class="customContainer">
-                <Text 
-                    id="_IDGenText2" 
-                    text="{i18n>DetailsTitle} {vacationModel>title}" 
+                <Text
+                    id="_IDGenText2"
+                    text="{i18n>DetailsTitle} {vacationModel>title}"
                     class="customTitle"/>
             </VBox>
             <f:SimpleForm
@@ -48,84 +49,53 @@
                             id="_IDGenText"
                             text="{vacationModel>department}"/>
                     </VBox>
-                    
-                    <VBox id="_IDGenVBox7" >
-                    <Text
-                        id="_IDGenLabel4"
-                        text="{i18n>enjoyedDays}"
-                        class="customText -margin--bottom"/>
-                    <Text
-                        id="_IDGenText3"
-                        text="{vacationModel>totalDias} {i18n>days}"
-                        class="sapUiSmallMarginBottom"/>
-                    <Text
-                        id="_IDGenLabel6"
-                        text="{i18n>remainingDays}"
-                        class="customText -margin--bottom"/>
-                    <Text
-                        id="_IDGenText4"
-                        text="{vacationModel>diasRestantes} {i18n>days}"/>
+
+                    <VBox id="_IDGenVBox7">
+                        <Text
+                            id="_IDGenLabel4"
+                            text="{i18n>enjoyedDays}"
+                            class="customText -margin--bottom"/>
+                        <Text
+                            id="_IDGenText3"
+                            text="{vacationModel>totalDias} {i18n>days}"
+                            class="sapUiSmallMarginBottom"/>
+                        <Text
+                            id="_IDGenLabel6"
+                            text="{i18n>remainingDays}"
+                            class="customText -margin--bottom" />
+                        <Text
+                            id="_IDGenText4"
+                            text="{vacationModel>diasRestantes} {i18n>days}"/>
                     </VBox>
+
                     <List
                         id="_IDGenList"
                         items="{vacationModel>appointments}"
                         noDataText="{i18n>noDataText}">
                         <CustomListItem id="_IDGenCustomListItem1">
                             <VBox id="_IDGenVBox2">
-                                <Text text="{i18n>periods}" class="customText -margin--bottom"/>
-                                <Text id="_IDGenText7" text="{i18n>start} {path: 'vacationModel>startDate', 
+                                <Text
+                                    text="{i18n>periods}"
+                                    class="customText -margin--bottom"/>
+                                <Text
+                                    id="_IDGenText7"
+                                    text="{i18n>start} {path: 'vacationModel>startDate', 
                                 type: 'sap.ui.model.type.DateTime', 
                                 formatOptions: { pattern: 'dd/MM/yyyy' }}"
-                                class="-margin--bottom"/>
-                                <Text id="_IDGenText8" text="{i18n>end} {path: 'vacationModel>endDate', 
+                                    class="-margin--bottom"/>
+                                <Text
+                                    id="_IDGenText8"
+                                    text="{i18n>end} {path: 'vacationModel>endDate', 
                                 type: 'sap.ui.model.type.DateTime', 
                                 formatOptions: { pattern: 'dd/MM/yyyy' }}"
-                                class="-margin--bottom"/>
+                                    class="-margin--bottom"/>
                             </VBox>
                         </CustomListItem>
                     </List>
                 </f:content>
             </f:SimpleForm>
-            <f:SimpleForm>
-             <VBox
-                        id="statsContainer"
-                        class="sapUiMediumMarginBottom">
-                        <Title
-                            id="statsTitle"
-                            text="{i18n>statsTitle}"
-                            class= "customText -margin--bottom"/>
-                        <VBox
-                            id="statsBox"
-                            justifyContent="SpaceBetween"
-                            class="sapUiSmallMarginBottom">
-                            <VBox
-                                id="usedDaysBox"
-                                class="sapUiTinyMarginEnd">
-                                <ObjectStatus
-                                    id="usedDaysStatus"
-                                    title="{i18n>enjoyedDays}"
-                                    text="{statsModel>/diasConsumidos}"
-                                    state="Warning"/>
-                                <ObjectStatus
-                                    id="remainingDaysStatus"
-                                    title="{i18n>remainingDays}"
-                                    text="{statsModel>/diasRestantes}"
-                                    state="Success"/>
-                                <ObjectStatus
-                                    id="maxDaysStatus"
-                                    title="{i18n>totalDays}"
-                                    text="{statsModel>/diasMaximos}"
-                                    state="Information"/>
-                            </VBox>
-                        </VBox>
-                        <ProgressIndicator
-                            id="vacationProgress"
-                            percentValue="{= ${statsModel>/diasConsumidos} / ${statsModel>/diasMaximos} * 100 }"
-                            displayValue="{= ${statsModel>/diasConsumidos} + ' of ' + ${statsModel>/diasMaximos} + ' days'}"
-                            showValue="true"
-                            state="{= ${statsModel>/diasRestantes} > 10 ? 'Success' : 'Warning' }"/>
-                    </VBox>
-            </f:SimpleForm>
+            
         </content>
     </Page>
 </mvc:View>
+

@@ -80,6 +80,9 @@ sap.ui.define([
                 sap.m.MessageToast.show("Error initializing the app");
                 return; 
             }
+            
+            // Configuración para festivos
+            oModel.setProperty("/showHolidays", false);
 
             // Configuración del modelo de vacaciones
             oModel.attachRequestCompleted(function () {
@@ -108,6 +111,49 @@ sap.ui.define([
             // estadísticas
             this._oStatsModel = new JSONModel();
             this.getView().setModel(this._oStatsModel, "statsModel");
+        },
+
+        onToggleHolidays: function(oEvent) {
+            const bShowHolidays = oEvent.getParameter("selected");
+            const oModel = this.getView().getModel("vacationModel");
+            
+            oModel.setProperty("/showHolidays", bShowHolidays);
+            
+            this.updateAppointmentsDisplay();
+            
+            const sMessage = bShowHolidays ? 
+                "Festivos mostrados" : 
+                "Festivos ocultos";
+            MessageToast.show(sMessage);
+        },
+
+        updateAppointmentsDisplay: function() {
+            const oModel = this.getView().getModel("vacationModel");
+            const aRows = oModel.getProperty("/rows") || [];
+            const bShowHolidays = oModel.getProperty("/showHolidays");
+            
+            aRows.forEach(function(oEmployee) {
+                // Combinar appointments según el filtro
+                let aAllAppointments = [];
+                
+                // Siempre incluir appointments de vacaciones (sin festivos)
+                if (oEmployee.appointments) {
+                    aAllAppointments = oEmployee.appointments.filter(function(app) {
+                        return !app.isHoliday;
+                    });
+                }
+                
+                // Añadir festivos solo si están habilitados
+                if (bShowHolidays && oEmployee.holidayAppointments) {
+                    aAllAppointments = aAllAppointments.concat(oEmployee.holidayAppointments);
+                }
+                
+                // Actualizar los appointments mostrados
+                oEmployee.displayAppointments = aAllAppointments;
+            });
+            
+            oModel.setProperty("/rows", aRows);
+            oModel.updateBindings(true);
         },
 
         _getText: function (sKey, aArgs) {
@@ -462,7 +508,6 @@ sap.ui.define([
 
         loadVacationData: async function () {
             const token = await this.getAppToken();
-            // console.log("Token obtenido:", token);
 
             try {
                 const response = await fetch("http://localhost:3000/employees");
@@ -473,21 +518,30 @@ sap.ui.define([
                 const namePromises = employees.map(emp => this.getUserNames(emp.id, token));
                 const names = await Promise.all(namePromises);
 
-                const rows = employees.map((emp, i) => ({
-                    id: emp.id,
-                    title: names[i]?.name || "Sin nombre",
-                    email: emp.email,
-                    department: emp.departments,
-                    icon: "sap-icon://person-placeholder",
-                    admin: emp.admin,
-                    appointments: [], 
-                }));
+                // Mapear empleados y añadir appointments de festivos
+                const rows = employees.map((emp, i) => {
+
+                    const holidayAppointments = this.convertHolidaysToAppointments(emp.holidays || []);
+                    return {
+                        id: emp.id,
+                        title: names[i]?.name || "Sin nombre",
+                        email: emp.email,
+                        department: emp.departments,
+                        icon: "sap-icon://person-placeholder",
+                        admin: emp.admin,
+                        city_id: emp.city_id,
+                        city_name: emp.city_name,
+                        appointments: [], // Se llenará con getUserEvents
+                        holidayAppointments: holidayAppointments, 
+                        
+                    };
+                });
                 console.log("Cargando datos de empleados:", rows);
 
-                // Mostrar el calendario con nombres
+                // Mostrar el calendario con nombres y festivos
                 const oModel = this.getView().getModel("vacationModel");
                 oModel.setProperty("/rows", rows);
-                oModel.updateBindings(true);
+                // oModel.updateBindings(true);
 
                 MessageToast.show(this._getText("loadingDataMessage"));
 
@@ -501,14 +555,55 @@ sap.ui.define([
                 });
 
                 oModel.setProperty("/rows", rows);
-                oModel.updateBindings(true);
 
+                this.updateAppointmentsDisplay();
+                // oModel.updateBindings(true);
                 MessageToast.show(this._getText("loadingDataSuccess"));
 
             } catch (error) {
                 console.error("Error loading data:", error);
                 MessageToast.show("Error loading data");
             }
+        },
+
+        convertHolidaysToAppointments: function(holidays) {
+            if (!holidays || !Array.isArray(holidays)) {
+                return [];
+            }
+
+            return holidays.map(holiday => {
+                let dateValue = holiday.date;
+                if (typeof dateValue === "object" && dateValue.date) {
+                    dateValue = dateValue.date;
+                }
+
+                let parts = typeof dateValue === "string" ? dateValue.split("-") : [];
+                let holidayDate = parts.length === 3
+                    ? new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]))
+                    : new Date(dateValue);
+
+                holidayDate.setDate(holidayDate.getDate() + 1);
+
+                if (isNaN(holidayDate.getTime())) {
+                    console.warn("Fecha de festivo inválida:", holiday);
+                    return null;
+                }
+
+                const startDate = new Date(holidayDate);
+                startDate.setHours(0, 0, 0, 0);
+
+                const endDate = new Date(holidayDate);
+                endDate.setHours(23, 59, 59, 999);
+
+                return {
+                    startDate: startDate,
+                    endDate: endDate,
+                    title: holiday.title || "Festivo",
+                    type: CalendarDayType.Type01,
+                    tooltip: `${holiday.title} - ${holiday.city || ""}`,
+                    isHoliday: true
+                };
+            }).filter(Boolean);
         },
         
         getUserNames: async function (userId, token) {
@@ -556,7 +651,7 @@ sap.ui.define([
                         startDate: startDate,
                         endDate: endDate,
                         title: event.subject,
-                        type: CalendarDayType.Type01,
+                        type: CalendarDayType.Type07,
                         tooltip: event.subject
                     };
                 });
@@ -708,23 +803,6 @@ sap.ui.define([
                 employeeId: "new"
             });
         },
-
-        // onGoToAdmin: function() {
-        //     const oModel = this.getView().getModel("vacationModel");
-        //     const currentUser = oModel.getProperty("/currentUser");
-            
-        //     if (!currentUser) {
-        //         MessageToast.show("User information not loaded");
-        //         return;
-        //     }
-
-        //     if (currentUser.isAdmin) {
-        //         const oRouter = this.getOwnerComponent().getRouter();
-        //         oRouter.navTo("admin");
-        //     } else {
-        //         MessageToast.show("You don't have administrator permissions");
-        //     }
-        // }
 
     });
 });

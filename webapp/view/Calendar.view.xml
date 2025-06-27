@@ -35,12 +35,20 @@
             key="{vacationModel>department}" 
             text="{vacationModel>department}"/>
         </MultiComboBox>
+        <CheckBox
+          id="holidayToggle"
+          text="{i18n>showHolidays}"
+          selected="{vacationModel>/showHolidays}"
+          select=".onToggleHolidays"
+          valueState="Warning"
+          class="sapUiTinymMarginBegin"/>
     </layout:HorizontalLayout>
       <Button
         id="adminButton"
         text="{i18n>adminButton}"
         icon="sap-icon://locked"
-        press=".onPressButton"/>
+        press=".onPressButton"
+        type="Emphasized"/>
     </headerContent>
     <content>
       <layout:Splitter 
@@ -91,7 +99,7 @@
               showRowHeaders="true"
               stickyHeader="true"
               rows="{vacationModel>/rows}"
-              rowSelectionChange=".onRowPress"
+              rowSelectionChange=".onRowPress___delete____"
               height="auto">
             <rows>
               <PlanningCalendarRow 
@@ -99,7 +107,7 @@
                 icon="{vacationModel>icon}" 
                 title="{vacationModel>title}"
                 text="{vacationModel>department}"
-                appointments="{vacationModel>appointments}">
+                appointments="{vacationModel>displayAppointments}">
                   <appointments>
                     <unified:CalendarAppointment 
                       id="_IDGenCalendarAppointment" 
