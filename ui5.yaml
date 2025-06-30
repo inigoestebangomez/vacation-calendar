@@ -25,4 +25,4 @@ server:
       afterMiddleware: fiori-tools-appreload
       configuration:
         component: vacation.caledar.vacationcalendar
-        ui5Theme: sap_horizon_dark
+        ui5Theme: sap_horizon

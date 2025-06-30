@@ -367,12 +367,12 @@ sap.ui.define([
           }
         },
 
-        _refreshEmployeeList: function () {
-          const oModel = this.getView().getModel("vacationModel");
-          if (oModel) {
-            oModel.refresh(true);
-          }
-        },
+        // _refreshEmployeeList: function () {
+        //   const oModel = this.getView().getModel("vacationModel");
+        //   if (oModel) {
+        //     oModel.refresh(true);
+        //   }
+        // },
 
         onNameChange: function (oEvent) {
           const oInput = oEvent.getSource();
@@ -437,7 +437,7 @@ sap.ui.define([
             const result = await response.json();
             console.log("New employee created:", result);
 
-            this._refreshEmployeeList();
+            this.onLoadEmployeeData();
             this.onCancelCreateEmployee();
             MessageToast.show("Employee created successfully");
           } catch (error) {
@@ -484,7 +484,7 @@ sap.ui.define([
                       );
                     }
 
-                    this._refreshEmployeeList();
+                    this.onLoadEmployeeData();
                     MessageToast.show("Employee deleted successfully");
                   } catch (error) {
                     console.error("Error deleting employee:", error);
